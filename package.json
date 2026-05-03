@@ -1,0 +1,16 @@
+{
+  "name": "ro-flow",
+  "private": true,
+  "version": "0.1.0",
+  "packageManager": "pnpm@9.0.0",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "pnpm --filter @ro-flow/api dev",
+    "build": "pnpm --filter @ro-flow/* build",
+    "test": "pnpm --filter @ro-flow/* test",
+    "lint": "pnpm --filter @ro-flow/* lint"
+  }
+}
