@@ -1,0 +1,26 @@
+{
+  "query": "SELECT id, openId, name, email, role, gemeenteId FROM users ORDER BY id;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user EyhbH5D8EpYP7W2.root --database 25kmsrzdTzXv9MeGNQcJZ9 --execute SELECT id, openId, name, email, role, gemeenteId FROM users ORDER BY id;",
+  "rows": [
+    {
+      "id": "1",
+      "openId": "LouHMwL3jYsRcdSxMeVVJa",
+      "name": "PolicyAI Assist",
+      "email": "policyaiassist@gmail.com",
+      "role": "super_admin",
+      "gemeenteId": "NULL"
+    },
+    {
+      "id": "330001",
+      "openId": "M5cnetuMnGMuNHTUogyPys",
+      "name": "Feber Schoonmaak",
+      "email": "info@feberschoonmaak.com",
+      "role": "user",
+      "gemeenteId": "NULL"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\topenId\tname\temail\trole\tgemeenteId\n1\tLouHMwL3jYsRcdSxMeVVJa\tPolicyAI Assist\tpolicyaiassist@gmail.com\tsuper_admin\tNULL\n330001\tM5cnetuMnGMuNHTUogyPys\tFeber Schoonmaak\tinfo@feberschoonmaak.com\tuser\tNULL\n",
+  "stderr": "",
+  "execution_time_ms": 60
+}

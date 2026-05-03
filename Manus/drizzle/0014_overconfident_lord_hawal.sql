@@ -1,0 +1,40 @@
+CREATE TABLE `feedback_patronen` (
+	`id` int AUTO_INCREMENT NOT NULL,
+	`gemeenteId` int,
+	`provincie` varchar(50),
+	`patroonType` enum('procedure_correctie','adviseur_gemist','adviseur_onnodig','toetsingskader_gemist','toetsingskader_onnodig','beleid_interpretatie','overig') NOT NULL,
+	`triggerActiviteit` varchar(100),
+	`triggerBeschermingsregime` varchar(100),
+	`triggerLocatie` varchar(255),
+	`beschrijving` text NOT NULL,
+	`aiInstructie` text NOT NULL,
+	`aantalVoorkomens` int DEFAULT 1,
+	`laatsteVoorkomen` timestamp,
+	`status` enum('actief','inactief','geverifieerd') DEFAULT 'actief',
+	`geverifieerdDoor` int,
+	`createdAt` timestamp NOT NULL DEFAULT (now()),
+	`updatedAt` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
+	CONSTRAINT `feedback_patronen_id` PRIMARY KEY(`id`)
+);
+--> statement-breakpoint
+CREATE TABLE `rapport_feedback` (
+	`id` int AUTO_INCREMENT NOT NULL,
+	`behandelrapportId` int NOT NULL,
+	`gemeenteId` int NOT NULL,
+	`userId` int NOT NULL,
+	`behandelaarNaam` varchar(200),
+	`behandelaarEmail` varchar(320),
+	`feedbackType` enum('algemeen','procedure','adviseurs','toetsingskaders','volledigheid','juridisch','beleidsdocumenten','overig') NOT NULL,
+	`score` enum('positief','negatief','neutraal') NOT NULL,
+	`correctie` text,
+	`redenIncorrect` text,
+	`origineleWaarde` text,
+	`gecorrigeerdeWaarde` text,
+	`activiteitType` varchar(100),
+	`beschermingsregime` varchar(100),
+	`isVerwerkt` boolean DEFAULT false,
+	`verwerkingsNotitie` text,
+	`createdAt` timestamp NOT NULL DEFAULT (now()),
+	`updatedAt` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
+	CONSTRAINT `rapport_feedback_id` PRIMARY KEY(`id`)
+);

@@ -1,0 +1,8 @@
+{
+  "query": "SELECT * FROM behandelrapport_log ORDER BY created_at DESC LIMIT 5;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user EyhbH5D8EpYP7W2.root --database 25kmsrzdTzXv9MeGNQcJZ9 --execute SELECT * FROM behandelrapport_log ORDER BY created_at DESC LIMIT 5;",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1054 (42S22) at line 1: Unknown column 'created_at' in 'order clause'"
+  ]
+}

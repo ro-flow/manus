@@ -1,0 +1,36 @@
+{
+  "query": "SELECT id, gemeenteNaam, provincie, waterschapCode, waterschapNaam, vrCode, vrNaam, odCode, odNaam, ggdCode, ggdNaam FROM gemeenten WHERE gemeenteNaam IN ('Hoorn', 'Medemblik');",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user EyhbH5D8EpYP7W2.root --database 25kmsrzdTzXv9MeGNQcJZ9 --execute SELECT id, gemeenteNaam, provincie, waterschapCode, waterschapNaam, vrCode, vrNaam, odCode, odNaam, ggdCode, ggdNaam FROM gemeenten WHERE gemeenteNaam IN ('Hoorn', 'Medemblik');",
+  "rows": [
+    {
+      "id": "1",
+      "gemeenteNaam": "Hoorn",
+      "provincie": "Noord-Holland",
+      "waterschapCode": "hhnk",
+      "waterschapNaam": "Hoogheemraadschap Hollands Noorderkwartier",
+      "vrCode": "vr-nhn",
+      "vrNaam": "Veiligheidsregio Noord-Holland Noord",
+      "odCode": "od-nhn",
+      "odNaam": "Omgevingsdienst Noord-Holland Noord",
+      "ggdCode": "ggd-hollands-noorden",
+      "ggdNaam": "GGD Hollands Noorden"
+    },
+    {
+      "id": "30003",
+      "gemeenteNaam": "Medemblik",
+      "provincie": "Noord-Holland",
+      "waterschapCode": "NULL",
+      "waterschapNaam": "NULL",
+      "vrCode": "NULL",
+      "vrNaam": "NULL",
+      "odCode": "NULL",
+      "odNaam": "NULL",
+      "ggdCode": "NULL",
+      "ggdNaam": "NULL"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tgemeenteNaam\tprovincie\twaterschapCode\twaterschapNaam\tvrCode\tvrNaam\todCode\todNaam\tggdCode\tggdNaam\n1\tHoorn\tNoord-Holland\thhnk\tHoogheemraadschap Hollands Noorderkwartier\tvr-nhn\tVeiligheidsregio Noord-Holland Noord\tod-nhn\tOmgevingsdienst Noord-Holland Noord\tggd-hollands-noorden\tGGD Hollands Noorden\n30003\tMedemblik\tNoord-Holland\tNULL\tNULL\tNULL\tNULL\tNULL\tNULL\tNULL\tNULL\n",
+  "stderr": "",
+  "execution_time_ms": 370
+}

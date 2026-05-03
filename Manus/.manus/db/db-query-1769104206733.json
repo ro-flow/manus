@@ -1,0 +1,55 @@
+{
+  "query": "SELECT * FROM seats;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user EyhbH5D8EpYP7W2.root --database 25kmsrzdTzXv9MeGNQcJZ9 --execute SELECT * FROM seats;",
+  "rows": [
+    {
+      "id": "1",
+      "email": "m.bakker@hoorn.nl",
+      "naam": "M. Bakker",
+      "gemeenteId": "1",
+      "rol": "beheerder",
+      "status": "actief",
+      "userId": "NULL",
+      "createdAt": "2026-01-21 20:20:34",
+      "updatedAt": "2026-01-21 20:20:34",
+      "laatsteLogin": "NULL",
+      "mollieCustomerId": "NULL",
+      "mollieSubscriptionId": "NULL",
+      "trialEndsAt": "NULL"
+    },
+    {
+      "id": "2",
+      "email": "p.jansen@hoorn.nl",
+      "naam": "P. Jansen",
+      "gemeenteId": "1",
+      "rol": "behandelaar",
+      "status": "actief",
+      "userId": "NULL",
+      "createdAt": "2026-01-21 20:20:34",
+      "updatedAt": "2026-01-21 20:20:34",
+      "laatsteLogin": "NULL",
+      "mollieCustomerId": "NULL",
+      "mollieSubscriptionId": "NULL",
+      "trialEndsAt": "NULL"
+    },
+    {
+      "id": "3",
+      "email": "a.devries@hoorn.nl",
+      "naam": "A. de Vries",
+      "gemeenteId": "1",
+      "rol": "behandelaar",
+      "status": "actief",
+      "userId": "NULL",
+      "createdAt": "2026-01-21 20:20:34",
+      "updatedAt": "2026-01-21 20:20:34",
+      "laatsteLogin": "NULL",
+      "mollieCustomerId": "NULL",
+      "mollieSubscriptionId": "NULL",
+      "trialEndsAt": "NULL"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\temail\tnaam\tgemeenteId\trol\tstatus\tuserId\tcreatedAt\tupdatedAt\tlaatsteLogin\tmollieCustomerId\tmollieSubscriptionId\ttrialEndsAt\n1\tm.bakker@hoorn.nl\tM. Bakker\t1\tbeheerder\tactief\tNULL\t2026-01-21 20:20:34\t2026-01-21 20:20:34\tNULL\tNULL\tNULL\tNULL\n2\tp.jansen@hoorn.nl\tP. Jansen\t1\tbehandelaar\tactief\tNULL\t2026-01-21 20:20:34\t2026-01-21 20:20:34\tNULL\tNULL\tNULL\tNULL\n3\ta.devries@hoorn.nl\tA. de Vries\t1\tbehandelaar\tactief\tNULL\t2026-01-21 20:20:34\t2026-01-21 20:20:34\tNULL\tNULL\tNULL\tNULL\n",
+  "stderr": "",
+  "execution_time_ms": 363
+}

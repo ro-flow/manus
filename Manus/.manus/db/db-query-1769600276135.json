@@ -1,0 +1,9 @@
+{
+  "query": "UPDATE kennisbank_items SET documentType = 'visie' WHERE documentType IN ('omgevingsvisie', 'woonvisie', 'erfgoedvisie', 'groenvisie', 'detailhandelsvisie', 'duurzaamheidsvisie');\nUPDATE kennisbank_items SET documentType = 'nota' WHERE documentType = 'welstandsnota';\nUPDATE kennisbank_items SET documentType = 'beleidsregel' WHERE documentType IN ('beleidsregels_wonen', 'beleidsregels_bopa', 'parkeerbeleid', 'archeologiebeleid', 'recreatiebeleid', 'horecabeleid');\nUPDATE kennisbank_items SET documentType = 'verordening' WHERE documentType = 'apv';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user EyhbH5D8EpYP7W2.root --database 25kmsrzdTzXv9MeGNQcJZ9 --execute UPDATE kennisbank_items SET documentType = 'visie' WHERE documentType IN ('omgevingsvisie', 'woonvisie', 'erfgoedvisie', 'groenvisie', 'detailhandelsvisie', 'duurzaamheidsvisie');\nUPDATE kennisbank_items SET documentType = 'nota' WHERE documentType = 'welstandsnota';\nUPDATE kennisbank_items SET documentType = 'beleidsregel' WHERE documentType IN ('beleidsregels_wonen', 'beleidsregels_bopa', 'parkeerbeleid', 'archeologiebeleid', 'recreatiebeleid', 'horecabeleid');\nUPDATE kennisbank_items SET documentType = 'verordening' WHERE documentType = 'apv';",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 93
+}

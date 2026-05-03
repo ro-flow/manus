@@ -1,0 +1,9 @@
+{
+  "query": "ALTER TABLE `gemeenten` ADD `recreatieschapNaam` varchar(100);\nALTER TABLE `gemeenten` ADD `recreatieschapCode` varchar(50);",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user EyhbH5D8EpYP7W2.root --database 25kmsrzdTzXv9MeGNQcJZ9 --execute ALTER TABLE `gemeenten` ADD `recreatieschapNaam` varchar(100);\nALTER TABLE `gemeenten` ADD `recreatieschapCode` varchar(50);",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 1253
+}

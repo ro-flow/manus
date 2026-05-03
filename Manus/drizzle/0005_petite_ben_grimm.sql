@@ -1,0 +1,1 @@
+ALTER TABLE `beleidsdocumenten` MODIFY COLUMN `documentType` enum('welstandsnota','parkeerbeleid','erfgoedbeleid','beleidsregels_afwijken','gezondheidsbeleid','groenbeleid','overig') NOT NULL;

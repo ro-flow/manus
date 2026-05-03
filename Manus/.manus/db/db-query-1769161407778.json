@@ -1,0 +1,9 @@
+{
+  "query": "ALTER TABLE `gemeenten` ADD `archeologieVrijstellingDiepteCm` int DEFAULT 30;\nALTER TABLE `gemeenten` ADD `archeologieVrijstellingOppervlakteM2` int DEFAULT 100;\nALTER TABLE `gemeenten` ADD `bodemonderzoekVrijstellingGebieden` text;\nALTER TABLE `gemeenten` ADD `bodemonderzoekVrijstellingPostcodes` text;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user EyhbH5D8EpYP7W2.root --database 25kmsrzdTzXv9MeGNQcJZ9 --execute ALTER TABLE `gemeenten` ADD `archeologieVrijstellingDiepteCm` int DEFAULT 30;\nALTER TABLE `gemeenten` ADD `archeologieVrijstellingOppervlakteM2` int DEFAULT 100;\nALTER TABLE `gemeenten` ADD `bodemonderzoekVrijstellingGebieden` text;\nALTER TABLE `gemeenten` ADD `bodemonderzoekVrijstellingPostcodes` text;",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 3096
+}

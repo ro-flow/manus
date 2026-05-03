@@ -1,0 +1,8 @@
+{
+  "query": "SELECT id, naam, triggers FROM kennisbankItems WHERE triggers IS NOT NULL LIMIT 5;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user EyhbH5D8EpYP7W2.root --database 25kmsrzdTzXv9MeGNQcJZ9 --execute SELECT id, naam, triggers FROM kennisbankItems WHERE triggers IS NOT NULL LIMIT 5;",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1146 (42S02) at line 1: Table '25kmsrzdtzxv9megnqcjz9.kennisbankItems' doesn't exist"
+  ]
+}

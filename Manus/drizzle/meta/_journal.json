@@ -1,0 +1,125 @@
+{
+  "version": "7",
+  "dialect": "mysql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1769026471613,
+      "tag": "0000_organic_carnage",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1769026787755,
+      "tag": "0001_workable_drax",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1769077909781,
+      "tag": "0002_old_apocalypse",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1769087180344,
+      "tag": "0003_daily_aqueduct",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "5",
+      "when": 1769108029790,
+      "tag": "0004_dizzy_storm",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1769108432273,
+      "tag": "0005_petite_ben_grimm",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1769110005435,
+      "tag": "0006_neat_tyger_tiger",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "5",
+      "when": 1769110382731,
+      "tag": "0007_old_ironclad",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "5",
+      "when": 1769111120155,
+      "tag": "0008_workable_iron_monger",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "5",
+      "when": 1769116631417,
+      "tag": "0009_eminent_beast",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "5",
+      "when": 1769151789631,
+      "tag": "0010_long_trauma",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "5",
+      "when": 1769157273280,
+      "tag": "0011_massive_nightcrawler",
+      "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "5",
+      "when": 1769161397717,
+      "tag": "0012_ambitious_albert_cleary",
+      "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "5",
+      "when": 1769600242743,
+      "tag": "0013_perfect_imperial_guard",
+      "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "5",
+      "when": 1770033033808,
+      "tag": "0014_overconfident_lord_hawal",
+      "breakpoints": true
+    },
+    {
+      "idx": 15,
+      "version": "5",
+      "when": 1770051494489,
+      "tag": "0015_outstanding_slyde",
+      "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "5",
+      "when": 1772739882109,
+      "tag": "0016_premium_lady_vermin",
+      "breakpoints": true
+    }
+  ]
+}

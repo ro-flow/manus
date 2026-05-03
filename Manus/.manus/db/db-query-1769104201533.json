@@ -1,0 +1,28 @@
+{
+  "query": "SELECT u.id, u.name, u.email, u.role, u.gemeenteId, s.id as seat_id, s.status as seat_status FROM users u LEFT JOIN seats s ON u.email = s.email ORDER BY u.id;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user EyhbH5D8EpYP7W2.root --database 25kmsrzdTzXv9MeGNQcJZ9 --execute SELECT u.id, u.name, u.email, u.role, u.gemeenteId, s.id as seat_id, s.status as seat_status FROM users u LEFT JOIN seats s ON u.email = s.email ORDER BY u.id;",
+  "rows": [
+    {
+      "id": "1",
+      "name": "PolicyAI Assist",
+      "email": "policyaiassist@gmail.com",
+      "role": "super_admin",
+      "gemeenteId": "NULL",
+      "seat_id": "NULL",
+      "seat_status": "NULL"
+    },
+    {
+      "id": "330001",
+      "name": "Feber Schoonmaak",
+      "email": "info@feberschoonmaak.com",
+      "role": "user",
+      "gemeenteId": "NULL",
+      "seat_id": "NULL",
+      "seat_status": "NULL"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\temail\trole\tgemeenteId\tseat_id\tseat_status\n1\tPolicyAI Assist\tpolicyaiassist@gmail.com\tsuper_admin\tNULL\tNULL\tNULL\n330001\tFeber Schoonmaak\tinfo@feberschoonmaak.com\tuser\tNULL\tNULL\tNULL\n",
+  "stderr": "",
+  "execution_time_ms": 360
+}

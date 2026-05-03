@@ -1,0 +1,21 @@
+{
+  "query": "SELECT u.id, u.openId, u.name, u.email, u.role, u.gemeenteId FROM users u WHERE u.email = 'policyaiassist@gmail.com'; SELECT id, gemeenteNaam FROM gemeenten WHERE gemeenteNaam LIKE '%Hoorn%' LIMIT 5;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user EyhbH5D8EpYP7W2.root --database 25kmsrzdTzXv9MeGNQcJZ9 --execute SELECT u.id, u.openId, u.name, u.email, u.role, u.gemeenteId FROM users u WHERE u.email = 'policyaiassist@gmail.com'; SELECT id, gemeenteNaam FROM gemeenten WHERE gemeenteNaam LIKE '%Hoorn%' LIMIT 5;",
+  "rows": [
+    {
+      "id": "1",
+      "openId": "LouHMwL3jYsRcdSxMeVVJa",
+      "name": "PolicyAI Assist",
+      "email": "policyaiassist@gmail.com",
+      "role": "super_admin",
+      "gemeenteId": "NULL"
+    }
+  ],
+  "messages": [
+    "id\tgemeenteNaam",
+    "1\tHoorn"
+  ],
+  "stdout": "id\topenId\tname\temail\trole\tgemeenteId\n1\tLouHMwL3jYsRcdSxMeVVJa\tPolicyAI Assist\tpolicyaiassist@gmail.com\tsuper_admin\tNULL\nid\tgemeenteNaam\n1\tHoorn\n",
+  "stderr": "",
+  "execution_time_ms": 154
+}

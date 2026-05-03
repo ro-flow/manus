@@ -1,0 +1,35 @@
+{
+  "query": "SELECT id, naam, triggers FROM adviseurs LIMIT 5;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user EyhbH5D8EpYP7W2.root --database 25kmsrzdTzXv9MeGNQcJZ9 --execute SELECT id, naam, triggers FROM adviseurs LIMIT 5;",
+  "rows": [
+    {
+      "id": "1",
+      "naam": "Rijksdienst Cultureel Erfgoed (RCE)",
+      "triggers": "[\"rijksmonument\", \"beschermd_gezicht_rijksniveau\"]"
+    },
+    {
+      "id": "2",
+      "naam": "Waterschap (regulier)",
+      "triggers": "[\"verharding_500m2\", \"nabij_waterkering\", \"nabij_hoofdwatergang\"]"
+    },
+    {
+      "id": "3",
+      "naam": "Omgevingsdienst",
+      "triggers": "[\"milieubelastende_activiteit\", \"bodem\", \"asbest\"]"
+    },
+    {
+      "id": "4",
+      "naam": "Veiligheidsregio",
+      "triggers": "[\"brandveiligheid_gebruiksmelding\", \"risicovolle_activiteit\"]"
+    },
+    {
+      "id": "5",
+      "naam": "GGD",
+      "triggers": "[\"gevoelige_bestemming\", \"school\", \"kinderopvang\", \"zorg\"]"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tnaam\ttriggers\n1\tRijksdienst Cultureel Erfgoed (RCE)\t[\"rijksmonument\", \"beschermd_gezicht_rijksniveau\"]\n2\tWaterschap (regulier)\t[\"verharding_500m2\", \"nabij_waterkering\", \"nabij_hoofdwatergang\"]\n3\tOmgevingsdienst\t[\"milieubelastende_activiteit\", \"bodem\", \"asbest\"]\n4\tVeiligheidsregio\t[\"brandveiligheid_gebruiksmelding\", \"risicovolle_activiteit\"]\n5\tGGD\t[\"gevoelige_bestemming\", \"school\", \"kinderopvang\", \"zorg\"]\n",
+  "stderr": "",
+  "execution_time_ms": 364
+}

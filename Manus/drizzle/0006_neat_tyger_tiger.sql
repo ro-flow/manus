@@ -1,0 +1,50 @@
+CREATE TABLE `crawler_log` (
+	`id` int AUTO_INCREMENT NOT NULL,
+	`crawlerType` enum('overheid_nl','ruimtelijkeplannen_nl','provinciale_sites','waterschappen') NOT NULL,
+	`gemeenteId` int,
+	`startedAt` timestamp NOT NULL,
+	`completedAt` timestamp,
+	`documentsFound` int DEFAULT 0,
+	`documentsNew` int DEFAULT 0,
+	`documentsUpdated` int DEFAULT 0,
+	`documentsRemoved` int DEFAULT 0,
+	`status` enum('running','completed','failed') DEFAULT 'running',
+	`errorMessage` text,
+	`createdAt` timestamp NOT NULL DEFAULT (now()),
+	CONSTRAINT `crawler_log_id` PRIMARY KEY(`id`)
+);
+--> statement-breakpoint
+CREATE TABLE `kennisbank_documenten` (
+	`id` int AUTO_INCREMENT NOT NULL,
+	`documentNaam` varchar(255) NOT NULL,
+	`documentType` enum('omgevingswet','bbl','bal','bkl','omgevingsbesluit','omgevingsregeling','pov','welstandsnota','parkeerbeleid','woonvisie','horecabeleid','erfgoedvisie','groenvisie','duurzaamheidsvisie','apv','keur','beleidsregels_bopa','archeologiebeleid','overig') NOT NULL,
+	`laag` enum('rijks','provinciaal','regionaal','gemeentelijk') NOT NULL,
+	`scopeProvincie` varchar(50),
+	`scopeRegioCode` varchar(50),
+	`scopeGemeenteId` int,
+	`samenvatting` text,
+	`samenvattingGeneratedAt` timestamp,
+	`toepassingscriteria` text,
+	`relevanteActiviteiten` json,
+	`geminiFileId` varchar(255),
+	`geminiStoreId` varchar(255),
+	`documentUrl` text,
+	`s3Key` varchar(500),
+	`s3Url` text,
+	`mimeType` varchar(100),
+	`fileSizeBytes` int,
+	`versie` varchar(100),
+	`vaststellingsdatum` timestamp,
+	`geldigVan` timestamp,
+	`geldigTot` timestamp,
+	`status` enum('concept','geldig','vervallen') NOT NULL DEFAULT 'geldig',
+	`bron` enum('crawler','upload','handmatig') DEFAULT 'handmatig',
+	`crawlerSource` varchar(100),
+	`lastCrawledAt` timestamp,
+	`createdBy` int,
+	`createdAt` timestamp NOT NULL DEFAULT (now()),
+	`updatedAt` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
+	CONSTRAINT `kennisbank_documenten_id` PRIMARY KEY(`id`)
+);
+--> statement-breakpoint
+ALTER TABLE `gemeenten` ADD `neemConceptenMee` boolean DEFAULT false;

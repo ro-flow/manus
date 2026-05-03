@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<aanvraag xmlns="http://www.omgevingswet.nl/aanvraag">
+  <metadata>
+    <aanvraagnummer>TEST-2026-VOLLEDIG</aanvraagnummer>
+    <indieningsdatum>2026-01-28</indieningsdatum>
+    <type>omgevingsvergunning</type>
+  </metadata>
+  <aanvrager>
+    <naam>Test Aanvrager B.V.</naam>
+    <adres>
+      <straat>Teststraat</straat>
+      <huisnummer>1</huisnummer>
+      <postcode>1234AB</postcode>
+      <plaats>Amsterdam</plaats>
+    </adres>
+    <email>test@example.com</email>
+    <telefoon>0612345678</telefoon>
+  </aanvrager>
+  <locatie>
+    <adres>
+      <straat>Grote Noord</straat>
+      <huisnummer>7</huisnummer>
+      <postcode>1621KE</postcode>
+      <plaats>Hoorn</plaats>
+    </adres>
+    <coordinaten>
+      <x>133500</x>
+      <y>517800</y>
+    </coordinaten>
+  </locatie>
+  <activiteiten>
+    <activiteit>
+      <code>bouwen</code>
+      <omschrijving>Bouwen van een woning</omschrijving>
+    </activiteit>
+    <activiteit>
+      <code>slopen</code>
+      <omschrijving>Slopen bestaande schuur</omschrijving>
+    </activiteit>
+  </activiteiten>
+  <projectomschrijving>
+    Nieuwbouw van een vrijstaande woning met bijgebouw op een perceel in het historische centrum van Hoorn.
+    Het project omvat het slopen van een bestaande schuur en het bouwen van een nieuwe woning van circa 150m2.
+    Er wordt gegraven tot een diepte van 1,5 meter voor de fundering.
+  </projectomschrijving>
+  <bouwgegevens>
+    <oppervlakte>150</oppervlakte>
+    <hoogte>9</hoogte>
+    <bouwlagen>2</bouwlagen>
+    <graafdiepte>1.5</graafdiepte>
+  </bouwgegevens>
+</aanvraag>

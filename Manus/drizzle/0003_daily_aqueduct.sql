@@ -1,0 +1,40 @@
+CREATE TABLE `payments` (
+	`id` int AUTO_INCREMENT NOT NULL,
+	`subscriptionId` int,
+	`userId` int NOT NULL,
+	`molliePaymentId` varchar(100) NOT NULL,
+	`mollieCustomerId` varchar(100) NOT NULL,
+	`amount` decimal(10,2) NOT NULL,
+	`currency` varchar(3) NOT NULL DEFAULT 'EUR',
+	`description` varchar(255),
+	`status` enum('open','pending','authorized','paid','failed','canceled','expired','refunded') NOT NULL,
+	`method` varchar(50),
+	`paidAt` timestamp,
+	`failedAt` timestamp,
+	`metadata` json,
+	`createdAt` timestamp NOT NULL DEFAULT (now()),
+	`updatedAt` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
+	CONSTRAINT `payments_id` PRIMARY KEY(`id`),
+	CONSTRAINT `payments_molliePaymentId_unique` UNIQUE(`molliePaymentId`)
+);
+--> statement-breakpoint
+CREATE TABLE `subscriptions` (
+	`id` int AUTO_INCREMENT NOT NULL,
+	`userId` int NOT NULL,
+	`mollieCustomerId` varchar(100) NOT NULL,
+	`mollieSubscriptionId` varchar(100),
+	`mollieMandateId` varchar(100),
+	`plan` enum('monthly','yearly') NOT NULL,
+	`amount` decimal(10,2) NOT NULL,
+	`currency` varchar(3) NOT NULL DEFAULT 'EUR',
+	`trialStartDate` timestamp NOT NULL,
+	`trialEndDate` timestamp NOT NULL,
+	`status` enum('trial','active','past_due','canceled','expired') NOT NULL DEFAULT 'trial',
+	`nextBillingDate` timestamp,
+	`lastPaymentDate` timestamp,
+	`canceledAt` timestamp,
+	`metadata` json,
+	`createdAt` timestamp NOT NULL DEFAULT (now()),
+	`updatedAt` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
+	CONSTRAINT `subscriptions_id` PRIMARY KEY(`id`)
+);

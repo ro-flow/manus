@@ -1,0 +1,1212 @@
+
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <title>Behandelrapport TEST-2026-VOLLEDIG</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      line-height: 1.6;
+      color: #1f2937;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 40px;
+    }
+    h1 { color: #111827; margin-bottom: 8px; }
+    h2 { color: #374151; border-bottom: 2px solid #e5e7eb; padding-bottom: 8px; margin-top: 32px; }
+    table { width: 100%; border-collapse: collapse; margin: 16px 0; }
+    th { background: #f3f4f6; text-align: left; padding: 12px 8px; border-bottom: 2px solid #e5e7eb; }
+    
+    .badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 9999px;
+      font-size: 14px;
+      font-weight: 500;
+    }
+    .badge-green { background: #dcfce7; color: #166534; }
+    .badge-blue { background: #dbeafe; color: #1e40af; }
+    .badge-yellow { background: #fef3c7; color: #92400e; }
+    
+    .summary-box {
+      background: #f0f9ff;
+      border: 1px solid #bae6fd;
+      border-radius: 8px;
+      padding: 20px;
+      margin: 20px 0;
+    }
+    
+    .meta-info {
+      display: flex;
+      gap: 24px;
+      color: #6b7280;
+      font-size: 14px;
+      margin-bottom: 24px;
+    }
+    
+    /* Locatie analyse */
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin: 16px 0;
+    }
+    .info-item {
+      background: #f9fafb;
+      padding: 12px;
+      border-radius: 6px;
+    }
+    .info-item.full-width {
+      grid-column: span 2;
+    }
+    
+    /* Procedure box */
+    .procedure-box {
+      background: #f9fafb;
+      border-radius: 8px;
+      padding: 20px;
+      margin: 16px 0;
+    }
+    .procedure-header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+    .procedure-details {
+      display: flex;
+      gap: 24px;
+      margin-bottom: 16px;
+    }
+    .detail-item .label {
+      color: #6b7280;
+      margin-right: 8px;
+    }
+    .detail-item .yes { color: #166534; font-weight: 600; }
+    .detail-item .no { color: #6b7280; }
+    .motivering {
+      background: white;
+      padding: 12px;
+      border-radius: 6px;
+      border-left: 3px solid #3b82f6;
+    }
+    
+    /* Activiteiten */
+    .activiteiten-box {
+      margin: 16px 0;
+    }
+    .activiteit-section {
+      background: #f9fafb;
+      padding: 16px;
+      border-radius: 6px;
+      margin-bottom: 12px;
+    }
+    .activiteit-section.warning {
+      background: #fef3c7;
+      border-left: 4px solid #f59e0b;
+    }
+    .activiteit-section ul {
+      margin: 8px 0 0 20px;
+    }
+    .note {
+      font-size: 13px;
+      color: #92400e;
+      margin-top: 8px;
+      font-style: italic;
+    }
+    
+    /* Juridische status */
+    .concept-label {
+      background: #fef3c7;
+      color: #92400e;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 11px;
+      margin-left: 8px;
+    }
+    .juridische-status {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      margin-right: 4px;
+    }
+    .juridische-status.normstellend { background: #dbeafe; color: #1e40af; }
+    .juridische-status.richtinggevend { background: #e0e7ff; color: #4338ca; }
+    .juridische-status.afwegingskader { background: #f3f4f6; color: #4b5563; }
+    .bindend-label {
+      background: #fee2e2;
+      color: #991b1b;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 11px;
+    }
+    
+    /* Tweezijdige werking */
+    .tweezijdige-box {
+      background: #f9fafb;
+      border-radius: 8px;
+      padding: 20px;
+      margin: 16px 0;
+      border-left: 4px solid #9ca3af;
+    }
+    .tweezijdige-box.laag { border-left-color: #22c55e; }
+    .tweezijdige-box.middel { border-left-color: #f59e0b; }
+    .tweezijdige-box.hoog { border-left-color: #dc2626; }
+    .risico-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .risico-badge {
+      padding: 4px 12px;
+      border-radius: 4px;
+      font-weight: 600;
+      font-size: 14px;
+    }
+    .risico-badge.laag { background: #dcfce7; color: #166534; }
+    .risico-badge.middel { background: #fef3c7; color: #92400e; }
+    .risico-badge.hoog { background: #fee2e2; color: #991b1b; }
+    .functies-table {
+      width: 100%;
+      margin: 12px 0;
+    }
+    .functie-type {
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+    }
+    .functie-type.nieuw { background: #dbeafe; color: #1e40af; }
+    .functie-type.bestaand { background: #f3e8ff; color: #7c3aed; }
+    
+    /* Uitgesloten beleid */
+    .section-intro {
+      color: #6b7280;
+      font-size: 14px;
+      margin-bottom: 16px;
+    }
+    .uitgesloten-row {
+      background: #fafafa;
+    }
+    
+    /* Juridisch risico */
+    .juridisch-risico {
+      background: #fee2e2;
+      color: #991b1b;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 11px;
+      margin-left: 8px;
+    }
+    
+    .footer {
+      margin-top: 48px;
+      padding-top: 24px;
+      border-top: 1px solid #e5e7eb;
+      color: #9ca3af;
+      font-size: 12px;
+    }
+    
+    /* Methodiek badge */
+    .methodiek-badge {
+      background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+      color: white;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 13px;
+      display: inline-block;
+      margin-bottom: 16px;
+    }
+  </style>
+</head>
+<body>
+  <div style="text-align: center; margin-bottom: 32px;">
+    <div class="methodiek-badge">Policy Assist 7-Stappen Methodiek</div>
+    <h1>Behandelrapport</h1>
+    <div style="font-size: 24px; color: #6b7280;">TEST-2026-VOLLEDIG</div>
+  </div>
+
+  <div class="meta-info">
+    <div><strong>Gemeente:</strong> Hoorn</div>
+    <div><strong>Behandelaar:</strong> PolicyAI Assist</div>
+    <div><strong>Datum:</strong> 28 januari 2026</div>
+  </div>
+
+  <div class="summary-box">
+    <strong>Samenvatting</strong>
+    <p style="margin: 8px 0 0 0;">De aanvraag voor 'bouwen' op Grote Noord 7 wordt behandeld via de REGULIERE procedure (8 weken), uitgaande van een binnenplanse omgevingsplanactiviteit. De cruciale toetsingskaders zijn het Omgevingsplan (ruimtelijk), het Bbl (technisch) en de Welstandsnota, aangezien de locatie in een beschermd gezicht ligt. De Welstandscommissie moet verplicht adviseren. Beleidskaders zoals ETFAL en milieu-gerelateerde normen zijn uitgesloten omdat het geen BOPA betreft en er geen sprake is van milieubelastende activiteiten.</p>
+  </div>
+
+  
+    <h2>Stap 1: Locatie Analyse</h2>
+    <div class="info-grid">
+      <div class="info-item">
+        <strong>Adres:</strong> Grote Noord 7, 1621KD Hoorn
+      </div>
+      
+        <div class="info-item">
+          <strong>Kadastraal object:</strong> HOO00-B-2122
+        </div>
+      
+      
+        <div class="info-item">
+          <strong>Omgevingsplan gebied:</strong> Hoorn
+        </div>
+      
+      
+        <div class="info-item">
+          <strong>Huidige bestemming:</strong> Niet gespecificeerd (Uitgaan van Omgevingsplanregels)
+        </div>
+      
+      
+        <div class="info-item full-width">
+          <strong>Bijzondere gebieden:</strong>
+          <ul style="margin: 4px 0 0 20px;">
+            <li>Beschermd Stads-/Dorpsgezicht (Hoorn)</li><li>Binnen de bebouwde kom</li>
+          </ul>
+        </div>
+      
+    </div>
+  
+  
+    <h2>Stap 2: Procedure Bepaling</h2>
+    <div class="procedure-box">
+      <div class="procedure-header">
+        <span class="badge badge-blue">
+          Reguliere procedure (8 weken)
+        </span>
+        <span class="termijn">Termijn: 8 weken</span>
+      </div>
+      <div class="procedure-details">
+        <div class="detail-item">
+          <span class="label">Binnenplans:</span>
+          <span class="yes">Ja</span>
+        </div>
+        <div class="detail-item">
+          <span class="label">BOPA:</span>
+          <span class="no">Nee</span>
+        </div>
+        <div class="detail-item">
+          <span class="label">Vergunningvrij:</span>
+          <span class="no">Nee</span>
+        </div>
+      </div>
+      <div class="motivering">
+        <strong>Motivering:</strong> De aanvraag betreft een bouwactiviteit. Gezien de ligging in een beschermd gezicht is de activiteit niet vergunningvrij (Art. 2.29 Bbl Bijlage II uitsluiting). Er wordt uitgegaan van een binnenplanse omgevingsplanactiviteit (BOPA is niet van toepassing tenzij de aanvraag later afwijkt van het Omgevingsplan). Standaardprocedure is regulier (8 weken).
+      </div>
+    </div>
+  
+  
+    <h2>Stap 3: Activiteiten Analyse</h2>
+    <div class="activiteiten-box">
+      <div class="activiteit-section">
+        <strong>Expliciete activiteiten (DSO):</strong>
+        <ul>
+          <li>Bouwen</li>
+        </ul>
+      </div>
+      
+        <div class="activiteit-section warning">
+          <strong>⚠️ Gedetecteerde impliciete activiteiten:</strong>
+          <ul>
+            <li>Technische bouwactiviteit (Bbl toetsing)</li><li>Omgevingsplanactiviteit (ruimtelijk toetsing)</li><li>Welstandstoetsing (verplicht in beschermd gezicht)</li><li>Parkeerbehoefte (indien functiewijziging of uitbreiding)</li>
+          </ul>
+          <p class="note">Let op: Deze activiteiten zijn niet expliciet aangevraagd maar vloeien voort uit de aanvraag.</p>
+        </div>
+      
+    </div>
+  
+
+  <h2>Stap 4 & 5: Toetsingskaders met Juridische Status</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Kader</th>
+        <th>Laag</th>
+        <th>Juridische Status</th>
+        <th>Toelichting</th>
+      </tr>
+    </thead>
+    <tbody>
+      
+      <tr>
+        <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">
+          Omgevingsplan (incl. Bruidsschat)
+        </td>
+        <td style="padding: 8px; border-bottom: 1px solid #e5e7eb; text-transform: capitalize;">gemeentelijk</td>
+        <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;"><span class="juridische-status normstellend">Normstellend (bindend)</span><span class="bindend-label">Bindend</span></td>
+        <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">Verplichte toetsing aan de regels voor de omgevingsplanactiviteit (hoogte, volume, gebruik). De bruidsschat (§22.4) bevat de welstandsregels totdat de gemeente deze heeft overgenomen.</td>
+      </tr>
+    
+      <tr>
+        <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">
+          Bbl - Besluit bouwwerken leefomgeving
+        </td>
+        <td style="padding: 8px; border-bottom: 1px solid #e5e7eb; text-transform: capitalize;">landelijk</td>
+        <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;"><span class="juridische-status normstellend">Normstellend (bindend)</span><span class="bindend-label">Bindend</span></td>
+        <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">Verplichte toetsing aan de technische bouwactiviteit (constructie, brandveiligheid, gezondheid).</td>
+      </tr>
+    
+      <tr>
+        <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">
+          Welstandsnota Hoorn 2024
+        </td>
+        <td style="padding: 8px; border-bottom: 1px solid #e5e7eb; text-transform: capitalize;">gemeentelijk</td>
+        <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;"><span class="juridische-status normstellend">Normstellend (bindend)</span><span class="bindend-label">Bindend</span></td>
+        <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">Verplichte toetsing aan redelijke eisen van welstand, aangezien de locatie in een beschermd gezicht ligt en het een bouwactiviteit betreft (Art. 4.19 Ow). De Welstandscommissie moet adviseren.</td>
+      </tr>
+    
+      <tr>
+        <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">
+          Parapluplan Parkeren / Parkeerbeleid Hoorn
+        </td>
+        <td style="padding: 8px; border-bottom: 1px solid #e5e7eb; text-transform: capitalize;">gemeentelijk</td>
+        <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;"><span class="juridische-status normstellend">Normstellend (bindend)</span><span class="bindend-label">Bindend</span></td>
+        <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">Indien de bouwactiviteit leidt tot een toename van de parkeerbehoefte (functiewijziging of uitbreiding), is toetsing aan de gemeentelijke parkeernormen verplicht. Dit beleid is normstellend gemaakt via het parapluplan.</td>
+      </tr>
+    
+      <tr>
+        <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">
+          Erfgoedbeleid Hoorn / Erfgoedverordening
+        </td>
+        <td style="padding: 8px; border-bottom: 1px solid #e5e7eb; text-transform: capitalize;">gemeentelijk</td>
+        <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;"><span class="juridische-status afwegingskader">Afwegingskader</span></td>
+        <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">Aangezien de locatie in een beschermd gezicht ligt, moeten de erfgoedbelangen worden meegewogen in de beoordeling van de bouwactiviteit, met name ten aanzien van de cultuurhistorische waarde van het gebied.</td>
+      </tr>
+    
+    </tbody>
+  </table>
+
+  
+  
+    <h2>Stap 7: Niet-Relevant Beleid (Gemotiveerd Uitgesloten)</h2>
+    <p class="section-intro">De volgende beleidsdocumenten zijn expliciet uitgesloten met juridische motivering. Dit versterkt het besluit en voorkomt discussies in bezwaar.</p>
+    <table>
+      <thead>
+        <tr>
+          <th>Beleidsdocument</th>
+          <th>Laag</th>
+          <th>Reden uitsluiting</th>
+          <th>Juridische motivering</th>
+        </tr>
+      </thead>
+      <tbody>
+        
+          <tr class="uitgesloten-row">
+            <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">ETFAL-kader</td>
+            <td style="padding: 8px; border-bottom: 1px solid #e5e7eb; text-transform: capitalize;">landelijk</td>
+            <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">Niet van toepassing</td>
+            <td style="padding: 8px; border-bottom: 1px solid #e5e7eb; font-style: italic;">Dit kader is uitsluitend van toepassing bij een BOPA (buitenplanse omgevingsplanactiviteit). De aanvraag wordt behandeld als binnenplans (Stap 2).</td>
+          </tr>
+        
+          <tr class="uitgesloten-row">
+            <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">Natura 2000 en Stikstof</td>
+            <td style="padding: 8px; border-bottom: 1px solid #e5e7eb; text-transform: capitalize;">landelijk</td>
+            <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">Locatie-ongebonden</td>
+            <td style="padding: 8px; border-bottom: 1px solid #e5e7eb; font-style: italic;">Locatie ligt niet binnen 5km van een Natura 2000-gebied. Stikstofdepositie is niet relevant tenzij de activiteit zeer omvangrijk is en op grote afstand significante emissies veroorzaakt, wat bij een reguliere bouwactiviteit onwaarschijnlijk is.</td>
+          </tr>
+        
+          <tr class="uitgesloten-row">
+            <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">Geurnormen</td>
+            <td style="padding: 8px; border-bottom: 1px solid #e5e7eb; text-transform: capitalize;">landelijk</td>
+            <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">Activiteit-ongebonden</td>
+            <td style="padding: 8px; border-bottom: 1px solid #e5e7eb; font-style: italic;">De activiteit 'bouwen' in een stedelijke omgeving heeft geen relatie met geurhinder van veehouderijen, waarvoor deze normen bedoeld zijn. Geen milieubelastende activiteit die geur produceert.</td>
+          </tr>
+        
+          <tr class="uitgesloten-row">
+            <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">Milieuzonering (VNG Handreiking)</td>
+            <td style="padding: 8px; border-bottom: 1px solid #e5e7eb; text-transform: capitalize;">gemeentelijk</td>
+            <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">Niet van toepassing bij binnenplanse bouw</td>
+            <td style="padding: 8px; border-bottom: 1px solid #e5e7eb; font-style: italic;">Milieuzonering is primair een afwegingskader bij BOPA's om de ruimtelijke ordening te waarborgen. Bij binnenplanse aanvragen is de afweging reeds gemaakt in het Omgevingsplan. Alleen als er sprake is van een nieuwe milieubelastende activiteit zou dit relevant zijn.</td>
+          </tr>
+        
+      </tbody>
+    </table>
+  
+
+  <h2>Te Raadplegen Adviseurs</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Adviseur</th>
+        <th>Categorie</th>
+        <th>Type</th>
+        <th>Verplicht</th>
+        <th>Termijn</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      
+    <tr>
+      <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">Hoogheemraadschap Hollands Noorderkwartier</td>
+      <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">Waterhuishouding</td>
+      <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">Extern</td>
+      <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">Nee</td>
+      <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">4 weken</td>
+      <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">bindend</td>
+    </tr>
+  
+    <tr>
+      <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">Welstandscommissie</td>
+      <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">Welstand</td>
+      <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">Intern</td>
+      <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">Ja</td>
+      <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">2 weken</td>
+      <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">richtinggevend</td>
+    </tr>
+  
+    </tbody>
+  </table>
+
+  
+    <h2>Centrale Beslisboom Analyse</h2>
+    <div style="background: #fee2e2; border-radius: 8px; padding: 20px; margin: 16px 0; border-left: 4px solid #dc2626;">
+      <div style="font-size: 18px; font-weight: 600; margin-bottom: 8px;">
+        Eindconclusie: VERGUNNINGPLICHTIG REGULIER
+      </div>
+      <div style="margin-bottom: 12px;">
+        <strong>Motivering:</strong> De aangevraagde activiteit (bouwen) is **regulier**. De reguliere procedure (8 weken) is van toepassing.
+      </div>
+      <div style="font-size: 14px; color: #6b7280;">
+        <strong>⚖️ Juridische grondslag:</strong> Omgevingswet art. 5.1 lid 1
+      </div>
+    </div>
+    
+    
+      <h3>Toetsingskaders (Gouden Regel)</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Kader</th>
+            <th>Laag</th>
+            <th>Prioriteit</th>
+            <th>Wettelijke Basis</th>
+          </tr>
+        </thead>
+        <tbody>
+          
+            <tr>
+              <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">Omgevingsplanregels</td>
+              <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">basis</td>
+              <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">altijd</td>
+              <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">Omgevingswet art. 5.1</td>
+            </tr>
+          
+            <tr>
+              <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">Bbl - Besluit bouwwerken leefomgeving</td>
+              <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">basis</td>
+              <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">altijd</td>
+              <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">Besluit bouwwerken leefomgeving</td>
+            </tr>
+          
+            <tr>
+              <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">Bal - Besluit activiteiten leefomgeving</td>
+              <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">basis</td>
+              <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">altijd</td>
+              <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">Besluit activiteiten leefomgeving</td>
+            </tr>
+          
+            <tr>
+              <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">Bkl - Besluit kwaliteit leefomgeving</td>
+              <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">basis</td>
+              <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">altijd</td>
+              <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">Besluit kwaliteit leefomgeving</td>
+            </tr>
+          
+            <tr>
+              <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">Welstandsnota</td>
+              <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">basis</td>
+              <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">altijd</td>
+              <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">Omgevingswet art. 4.19</td>
+            </tr>
+          
+            <tr>
+              <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">Parkeerbeleid</td>
+              <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">basis</td>
+              <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">soms</td>
+              <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">Omgevingsplan (parapluregels)</td>
+            </tr>
+          
+        </tbody>
+      </table>
+    
+    
+    
+    
+    
+      <details style="margin-top: 16px;">
+        <summary style="cursor: pointer; font-weight: 600; color: #374151;">Doorlopen stappen (5)</summary>
+        <ol style="margin-top: 12px; padding-left: 20px;">
+          
+            <li style="margin-bottom: 12px;">
+              <strong>Basisvergunningplicht bepalen</strong>
+              <div style="color: #059669; font-size: 14px;">vergunningplichtig</div>
+              <div style="color: #6b7280; font-size: 13px;">De aanvraag betreft een bouwactiviteit. Gezien de ligging in een beschermd gezicht is de activiteit niet vergunningvrij (Art. 2.29 Bbl Bijlage II uitsluiting). Er wordt uitgegaan van een binnenplanse omgevingsplanactiviteit (BOPA is niet van toepassing tenzij de aanvraag later afwijkt van het Omgevingsplan). Standaardprocedure is regulier (8 weken).</div>
+            </li>
+          
+            <li style="margin-bottom: 12px;">
+              <strong>Expliciete uitzonderingen zoeken</strong>
+              <div style="color: #059669; font-size: 14px;">Nee</div>
+              <div style="color: #6b7280; font-size: 13px;">Geen expliciete uitzonderingen gevonden die vergunningvrijstelling uitsluiten</div>
+            </li>
+          
+            <li style="margin-bottom: 12px;">
+              <strong>Finale conclusie bepalen</strong>
+              <div style="color: #059669; font-size: 14px;">REGULIER</div>
+              <div style="color: #6b7280; font-size: 13px;">Geen override nodig, basisconclisie blijft van kracht</div>
+            </li>
+          
+            <li style="margin-bottom: 12px;">
+              <strong>Toetsingskaders bepalen (Gouden Regel)</strong>
+              <div style="color: #059669; font-size: 14px;">5 verplicht, 1 optioneel</div>
+              <div style="color: #6b7280; font-size: 13px;">Bepaald volgens de Gouden Regel: "mag/moet/niet mag" = ALTIJD, "wenst/stimuleert" = SOMS</div>
+            </li>
+          
+            <li style="margin-bottom: 12px;">
+              <strong>Beschermingsregimes categoriseren</strong>
+              <div style="color: #059669; font-size: 14px;">0 context, 0 doorslaggevend</div>
+              <div style="color: #6b7280; font-size: 13px;">Alle beschermingsregimes zijn alleen context (geen expliciete uitzonderingen)</div>
+            </li>
+          
+        </ol>
+      </details>
+    
+  
+  
+    <h2>Gelaagde Kennisbank (5 lagen, 4 categorieën)</h2>
+    <div style="background: #f0f9ff; border-radius: 8px; padding: 16px; margin: 16px 0; border-left: 4px solid #3b82f6;">
+      <div style="display: flex; gap: 24px; margin-bottom: 12px;">
+        <div><strong>Totaal items:</strong> 5</div>
+      </div>
+      <div style="display: flex; gap: 16px; flex-wrap: wrap;">
+        
+          <span style="background: #dbeafe; padding: 4px 12px; border-radius: 9999px; font-size: 13px;">
+            adviseurs: 0
+          </span>
+        
+          <span style="background: #dbeafe; padding: 4px 12px; border-radius: 9999px; font-size: 13px;">
+            toetsingskaders: 3
+          </span>
+        
+          <span style="background: #dbeafe; padding: 4px 12px; border-radius: 9999px; font-size: 13px;">
+            onderzoeken: 2
+          </span>
+        
+          <span style="background: #dbeafe; padding: 4px 12px; border-radius: 9999px; font-size: 13px;">
+            beleidsdocumenten: 0
+          </span>
+        
+      </div>
+    </div>
+    
+    
+      <h3 style="margin-top: 20px; color: #1e40af;">
+        Basis (5 items)
+      </h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Categorie</th>
+            <th>Naam</th>
+            <th>Status</th>
+            <th>Toelichting</th>
+          </tr>
+        </thead>
+        <tbody>
+          
+            <tr>
+              <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">
+                <span style="background: #dbeafe; padding: 2px 8px; border-radius: 4px; font-size: 12px;">
+                  toetsingskaders
+                </span>
+              </td>
+              <td style="padding: 8px; border-bottom: 1px solid #e5e7eb; font-weight: 500;">Omgevingswet</td>
+              <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">verplicht</td>
+              <td style="padding: 8px; border-bottom: 1px solid #e5e7eb; font-size: 13px; color: #6b7280;">Hoofdwet voor de fysieke leefomgeving</td>
+            </tr>
+          
+            <tr>
+              <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">
+                <span style="background: #dbeafe; padding: 2px 8px; border-radius: 4px; font-size: 12px;">
+                  toetsingskaders
+                </span>
+              </td>
+              <td style="padding: 8px; border-bottom: 1px solid #e5e7eb; font-weight: 500;">Besluit bouwwerken leefomgeving (Bbl)</td>
+              <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">verplicht</td>
+              <td style="padding: 8px; border-bottom: 1px solid #e5e7eb; font-size: 13px; color: #6b7280;">Technische eisen voor bouwwerken</td>
+            </tr>
+          
+            <tr>
+              <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">
+                <span style="background: #dbeafe; padding: 2px 8px; border-radius: 4px; font-size: 12px;">
+                  toetsingskaders
+                </span>
+              </td>
+              <td style="padding: 8px; border-bottom: 1px solid #e5e7eb; font-weight: 500;">Besluit kwaliteit leefomgeving (Bkl)</td>
+              <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">verplicht</td>
+              <td style="padding: 8px; border-bottom: 1px solid #e5e7eb; font-size: 13px; color: #6b7280;">Instructieregels voor ruimtelijke kwaliteit</td>
+            </tr>
+          
+            <tr>
+              <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">
+                <span style="background: #fef3c7; padding: 2px 8px; border-radius: 4px; font-size: 12px;">
+                  onderzoeken
+                </span>
+              </td>
+              <td style="padding: 8px; border-bottom: 1px solid #e5e7eb; font-weight: 500;">Bodemonderzoek</td>
+              <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">optioneel</td>
+              <td style="padding: 8px; border-bottom: 1px solid #e5e7eb; font-size: 13px; color: #6b7280;">Onderzoek naar bodemkwaliteit en verontreiniging</td>
+            </tr>
+          
+            <tr>
+              <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">
+                <span style="background: #fef3c7; padding: 2px 8px; border-radius: 4px; font-size: 12px;">
+                  onderzoeken
+                </span>
+              </td>
+              <td style="padding: 8px; border-bottom: 1px solid #e5e7eb; font-weight: 500;">AERIUS-berekening (stikstof)</td>
+              <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">optioneel</td>
+              <td style="padding: 8px; border-bottom: 1px solid #e5e7eb; font-size: 13px; color: #6b7280;">Berekening stikstofdepositie op Natura 2000-gebieden</td>
+            </tr>
+          
+        </tbody>
+      </table>
+    
+  
+  
+    <h2>Vergunning Beslisboom Analyse</h2>
+    <div style="background: #fee2e2; border-radius: 8px; padding: 20px; margin: 16px 0; border-left: 4px solid #dc2626;">
+      <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+        <span style="font-size: 28px;">📝</span>
+        <div>
+          <div style="font-size: 20px; font-weight: 700; color: #991b1b;">
+            VERGUNNINGPLICHTIG
+          </div>
+          <div style="font-size: 14px; color: #6b7280;">
+            omgevingsplan
+          </div>
+        </div>
+      </div>
+      
+      <div style="background: white; border-radius: 6px; padding: 16px; margin-bottom: 16px;">
+        <p style="margin: 0; line-height: 1.6;">De activiteit is vergunningplichtig. De aanvraag betreft een bouwactiviteit. Gezien de ligging in een beschermd gezicht is de activiteit niet vergunningvrij (Art. 2.29 Bbl Bijlage II uitsluiting). Er wordt uitgegaan van een binnenplanse omgevingsplanactiviteit (BOPA is niet van toepassing tenzij de aanvraag later afwijkt van het Omgevingsplan). Standaardprocedure is regulier (8 weken).</p>
+      </div>
+      
+      
+      
+      
+      
+      
+      
+      <details style="margin-top: 16px;">
+        <summary style="cursor: pointer; font-weight: 600; color: #4b5563;">Doorlopen beslisboom stappen (1)</summary>
+        <div style="background: #f9fafb; border-radius: 6px; padding: 12px; margin-top: 8px;">
+          
+            <div style="margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid #e5e7eb;">
+              <div style="font-weight: 600; color: #374151;">Stap 1: Basisvraag vergunningvrijheid</div>
+              <div style="font-size: 13px; color: #6b7280; margin-top: 4px;"><strong>Vraag:</strong> Is de activiteit vergunningvrij volgens Bbl, Bal of omgevingsplan?</div>
+              <div style="font-size: 13px; color: #374151; margin-top: 2px;"><strong>Antwoord:</strong> Nee, vergunningplichtig</div>
+              <div style="font-size: 12px; color: #6b7280; margin-top: 2px; font-style: italic;">De aanvraag betreft een bouwactiviteit. Gezien de ligging in een beschermd gezicht is de activiteit niet vergunningvrij (Art. 2.29 Bbl Bijlage II uitsluiting). Er wordt uitgegaan van een binnenplanse omgevingsplanactiviteit (BOPA is niet van toepassing tenzij de aanvraag later afwijkt van het Omgevingsplan). Standaardprocedure is regulier (8 weken).</div>
+            </div>
+          
+        </div>
+      </details>
+    </div>
+  
+  
+    <h2>Stikstof Voortoets (AERIUS + Natura 2000)</h2>
+    <div style="background: #fee2e2; border-radius: 8px; padding: 16px; margin: 16px 0; border-left: 4px solid #dc2626;">
+      <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+        <span style="font-size: 24px;">🔴</span>
+        <strong style="font-size: 18px;">Risiconiveau: HOOG</strong>
+      </div>
+      <p style="margin: 0 0 16px 0;">De locatie ligt op 0.3km van Natura 2000 gebied "Markermeer & IJmeer". De activiteiten kunnen stikstofemissies veroorzaken (Bouwverkeer en materieel). Een AERIUS berekening is vereist.</p>
+      
+        <div style="background: #fff; padding: 12px; border-radius: 6px; margin-top: 12px;">
+          <strong>⚠️ AERIUS berekening vereist</strong>
+          <p style="margin: 4px 0 0 0; font-size: 14px;">Voer een AERIUS Calculator berekening uit om de stikstofdepositie op Natura 2000 gebieden te bepalen.</p>
+        </div>
+      
+    </div>
+    
+    
+      <h3>Natura 2000 Analyse</h3>
+      <div style="background: #f0fdf4; border: 1px solid #22c55e; border-radius: 8px; padding: 16px; margin: 16px 0;">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+          <div>
+            <strong>Dichtstbijzijnde gebied:</strong><br/>
+            Markermeer & IJmeer
+          </div>
+          <div>
+            <strong>Afstand:</strong><br/>
+            282m
+          </div>
+          <div>
+            <strong>Stikstof risico (locatie):</strong><br/>
+            <span style="color: #dc2626;">
+              HOOG
+            </span>
+          </div>
+          <div>
+            <strong>Gebieden binnen 10km:</strong><br/>
+            2
+          </div>
+        </div>
+        
+          <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid #22c55e;">
+            <strong>Aanbeveling:</strong> De locatie ligt op 282m van Natura 2000 gebied "Markermeer & IJmeer". Een AERIUS berekening is zeer waarschijnlijk vereist.
+          </div>
+        
+        
+          <div style="margin-top: 12px;">
+            <strong>Natura 2000 gebieden in de omgeving:</strong>
+            <ul style="margin: 8px 0 0 0; padding-left: 20px;">
+              
+                <li>Markermeer & IJmeer (282m)</li>
+              
+                <li>Polder Zeevang (8.4km)</li>
+              
+              
+            </ul>
+          </div>
+        
+      </div>
+    
+    
+    
+        <h3>Overige Beschermde Natuurgebieden</h3>
+        <div style="background: #fef3c7; border: 1px solid #f59e0b; border-radius: 8px; padding: 16px; margin: 16px 0;">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+            
+              <div>
+                <strong>Natuurnetwerk Nederland (NNN):</strong><br/>
+                2.5km afstand
+              </div>
+            
+            
+          </div>
+          
+        </div>
+      
+    
+    
+      <h3>Gedetecteerde emissiebronnen</h3>
+      <ul>
+        <li>Bouwverkeer en materieel</li>
+      </ul>
+    
+    
+    <h3>Aanbevelingen</h3>
+    <ul>
+      <li>Voer een AERIUS Calculator berekening uit</li><li>Bereken depositie op Markermeer & IJmeer</li><li>Overweeg mitigerende maatregelen zoals elektrisch materieel</li><li>Onderzoek mogelijkheden voor intern of extern salderen</li>
+    </ul>
+  
+  
+    <h2>Funderingsproblematiek Check</h2>
+    <div style="background: #fee2e2; border-radius: 8px; padding: 16px; margin: 16px 0; border-left: 4px solid #dc2626;">
+      <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+        <span style="font-size: 24px;">🔴</span>
+        <strong style="font-size: 18px;">Funderingsrisico: HOOG</strong>
+      </div>
+      
+        <p style="margin: 0 0 12px 0;">Deze locatie ligt in een indicatief aandachtsgebied voor funderingsproblematiek.</p>
+      
+    </div>
+    
+    
+      <h3>Gebiedsinformatie</h3>
+      <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; margin: 16px 0;">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+          <div>
+            <strong>Postcodegebied:</strong><br/>
+            1621CW
+          </div>
+          <div>
+            <strong>Gemeente:</strong><br/>
+            Hoorn
+          </div>
+          <div>
+            <strong>Bodemtype:</strong><br/>
+            Zeekleigebied
+          </div>
+          <div>
+            <strong>Panden voor 1970:</strong><br/>
+            100%
+          </div>
+          <div style="grid-column: span 2;">
+            <strong>Classificatie:</strong><br/>
+            Kwetsbaar gebied - 80-100 %
+          </div>
+        </div>
+      </div>
+    
+    
+    <h3>Aanbevelingen</h3>
+    <ul>
+      <li>Deze locatie ligt in een gebied met potentieel funderingsrisico. Adviseer aanvrager om de staat van de fundering te (laten) onderzoeken.</li><li>Let op: Kleigebied. Kleibodem kan zettingsgevoelig zijn. Bij nieuwbouw of uitbreiding constructief advies aanbevolen.</li><li>In dit postcodegebied is 100% van de panden gebouwd voor 1970. Houten paalfunderingen uit die periode kunnen aangetast zijn door paalrot of bacteriële aantasting.</li><li>HOOG RISICO: Sterk aanbevolen om funderingsonderzoek als voorwaarde op te nemen voordat vergunning wordt verleend voor verbouwing of uitbreiding.</li><li>Meer informatie: Kenniscentrum Aanpak Funderingsproblematiek (www.kcaf.nl)</li>
+    </ul>
+  
+  
+    <h2>Cultuurhistorie Check</h2>
+    <div style="background: #fef3c7; border-radius: 8px; padding: 16px; margin: 16px 0; border-left: 4px solid #f59e0b;">
+      <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+        <span style="font-size: 24px;">🏛️</span>
+        <strong style="font-size: 18px;">Cultuurhistorische waarden aanwezig</strong>
+      </div>
+      
+      
+        <p style="margin: 0 0 8px 0;"><strong>🏡 Beschermd Dorpsgezicht:</strong> Deze locatie ligt binnen een beschermd dorpsgezicht. Extra welstandseisen zijn van toepassing.</p>
+      
+      
+        <p style="margin: 0 0 8px 0;"><strong>🏛️ Monumenten nabij:</strong> Er bevinden zich rijksmonumenten in de directe omgeving.</p>
+      
+      
+        <p style="margin: 0 0 8px 0;"><strong>📍 100 monumenten</strong> in de omgeving (200m radius)</p>
+      
+    </div>
+    
+    
+      <h3>Beschermde Gebieden en Monumenten</h3>
+      <table style="width: 100%; border-collapse: collapse; margin: 16px 0;">
+        <thead>
+          <tr style="background: #f1f5f9;">
+            <th style="padding: 8px; text-align: left; border: 1px solid #e2e8f0;">Type</th>
+            <th style="padding: 8px; text-align: left; border: 1px solid #e2e8f0;">Naam</th>
+            <th style="padding: 8px; text-align: left; border: 1px solid #e2e8f0;">Afstand</th>
+            <th style="padding: 8px; text-align: left; border: 1px solid #e2e8f0;">Ligging</th>
+          </tr>
+        </thead>
+        <tbody>
+          
+            <tr>
+              <td style="padding: 8px; border: 1px solid #e2e8f0;">
+                🏡 Dorpsgezicht
+              </td>
+              <td style="padding: 8px; border: 1px solid #e2e8f0;">Hoorn</td>
+              <td style="padding: 8px; border: 1px solid #e2e8f0;">-</td>
+              <td style="padding: 8px; border: 1px solid #e2e8f0;">
+                <span style="background: #fee2e2; padding: 2px 8px; border-radius: 4px;">
+                  Binnen
+                </span>
+              </td>
+            </tr>
+          
+            <tr>
+              <td style="padding: 8px; border: 1px solid #e2e8f0;">
+                🏡 Dorpsgezicht
+              </td>
+              <td style="padding: 8px; border: 1px solid #e2e8f0;">Hoorn Uitbreiding</td>
+              <td style="padding: 8px; border: 1px solid #e2e8f0;">-</td>
+              <td style="padding: 8px; border: 1px solid #e2e8f0;">
+                <span style="background: #fef3c7; padding: 2px 8px; border-radius: 4px;">
+                  Nabij
+                </span>
+              </td>
+            </tr>
+          
+            <tr>
+              <td style="padding: 8px; border: 1px solid #e2e8f0;">
+                🏘️ Stadsgezicht
+              </td>
+              <td style="padding: 8px; border: 1px solid #e2e8f0;">Onbekend</td>
+              <td style="padding: 8px; border: 1px solid #e2e8f0;">-</td>
+              <td style="padding: 8px; border: 1px solid #e2e8f0;">
+                <span style="background: #fef3c7; padding: 2px 8px; border-radius: 4px;">
+                  Nabij
+                </span>
+              </td>
+            </tr>
+          
+            <tr>
+              <td style="padding: 8px; border: 1px solid #e2e8f0;">
+                🏘️ Stadsgezicht
+              </td>
+              <td style="padding: 8px; border: 1px solid #e2e8f0;">Onbekend</td>
+              <td style="padding: 8px; border: 1px solid #e2e8f0;">-</td>
+              <td style="padding: 8px; border: 1px solid #e2e8f0;">
+                <span style="background: #fef3c7; padding: 2px 8px; border-radius: 4px;">
+                  Nabij
+                </span>
+              </td>
+            </tr>
+          
+            <tr>
+              <td style="padding: 8px; border: 1px solid #e2e8f0;">
+                🏛️ Monument
+              </td>
+              <td style="padding: 8px; border: 1px solid #e2e8f0;">Rijksmonument</td>
+              <td style="padding: 8px; border: 1px solid #e2e8f0;">1m</td>
+              <td style="padding: 8px; border: 1px solid #e2e8f0;">
+                <span style="background: #fee2e2; padding: 2px 8px; border-radius: 4px;">
+                  Binnen
+                </span>
+              </td>
+            </tr>
+          
+            <tr>
+              <td style="padding: 8px; border: 1px solid #e2e8f0;">
+                🏛️ Monument
+              </td>
+              <td style="padding: 8px; border: 1px solid #e2e8f0;">Rijksmonument</td>
+              <td style="padding: 8px; border: 1px solid #e2e8f0;">6m</td>
+              <td style="padding: 8px; border: 1px solid #e2e8f0;">
+                <span style="background: #fee2e2; padding: 2px 8px; border-radius: 4px;">
+                  Binnen
+                </span>
+              </td>
+            </tr>
+          
+            <tr>
+              <td style="padding: 8px; border: 1px solid #e2e8f0;">
+                🏛️ Monument
+              </td>
+              <td style="padding: 8px; border: 1px solid #e2e8f0;">Rijksmonument</td>
+              <td style="padding: 8px; border: 1px solid #e2e8f0;">12m</td>
+              <td style="padding: 8px; border: 1px solid #e2e8f0;">
+                <span style="background: #fee2e2; padding: 2px 8px; border-radius: 4px;">
+                  Binnen
+                </span>
+              </td>
+            </tr>
+          
+            <tr>
+              <td style="padding: 8px; border: 1px solid #e2e8f0;">
+                🏛️ Monument
+              </td>
+              <td style="padding: 8px; border: 1px solid #e2e8f0;">Rijksmonument</td>
+              <td style="padding: 8px; border: 1px solid #e2e8f0;">14m</td>
+              <td style="padding: 8px; border: 1px solid #e2e8f0;">
+                <span style="background: #fee2e2; padding: 2px 8px; border-radius: 4px;">
+                  Binnen
+                </span>
+              </td>
+            </tr>
+          
+            <tr>
+              <td style="padding: 8px; border: 1px solid #e2e8f0;">
+                🏛️ Monument
+              </td>
+              <td style="padding: 8px; border: 1px solid #e2e8f0;">Rijksmonument</td>
+              <td style="padding: 8px; border: 1px solid #e2e8f0;">18m</td>
+              <td style="padding: 8px; border: 1px solid #e2e8f0;">
+                <span style="background: #fee2e2; padding: 2px 8px; border-radius: 4px;">
+                  Binnen
+                </span>
+              </td>
+            </tr>
+          
+            <tr>
+              <td style="padding: 8px; border: 1px solid #e2e8f0;">
+                🏛️ Monument
+              </td>
+              <td style="padding: 8px; border: 1px solid #e2e8f0;">Rijksmonument</td>
+              <td style="padding: 8px; border: 1px solid #e2e8f0;">39m</td>
+              <td style="padding: 8px; border: 1px solid #e2e8f0;">
+                <span style="background: #fee2e2; padding: 2px 8px; border-radius: 4px;">
+                  Binnen
+                </span>
+              </td>
+            </tr>
+          
+        </tbody>
+      </table>
+    
+    
+    <h3>Aanbevelingen</h3>
+    <ul>
+      <li>⚠️ Locatie ligt binnen een beschermd dorpsgezicht. Extra welstandseisen van toepassing.</li><li>Raadpleeg de welstandsnota voor specifieke eisen aan materiaalgebruik en vormgeving.</li><li>Mogelijk is advies van de monumentencommissie vereist.</li><li>📍 Rijksmonument binnen 1m: "Rijksmonument"</li><li>Check of de werkzaamheden invloed hebben op het monument of de omgeving.</li><li>ℹ️ 100 monumenten in de directe omgeving. Gebied heeft hoge cultuurhistorische waarde.</li>
+    </ul>
+  
+  
+  
+    <h2>Topografische Analyse (BGT)</h2>
+    <div style="background: #f0f9ff; border-radius: 8px; padding: 16px; margin: 16px 0; border-left: 4px solid #0ea5e9;">
+      <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+        <span style="font-size: 24px;">🗺️</span>
+        <strong style="font-size: 18px;">Omgevingsanalyse (100m radius)</strong>
+      </div>
+      <p style="margin: 0 0 12px 0;">Topografische analyse: 100 pand(en) in de directe omgeving, groenvoorziening aanwezig (11 elementen), 100 wegdeel(en) in de omgeving.</p>
+      
+      <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 16px;">
+        <div style="background: white; padding: 12px; border-radius: 6px; text-align: center;">
+          <div style="font-size: 24px;">🏠</div>
+          <div style="font-size: 20px; font-weight: bold;">100</div>
+          <div style="font-size: 12px; color: #64748b;">Panden</div>
+        </div>
+        <div style="background: white; padding: 12px; border-radius: 6px; text-align: center;">
+          <div style="font-size: 24px;">🌳</div>
+          <div style="font-size: 20px; font-weight: bold;">11</div>
+          <div style="font-size: 12px; color: #64748b;">Groen</div>
+        </div>
+        <div style="background: white; padding: 12px; border-radius: 6px; text-align: center;">
+          <div style="font-size: 24px;">💧</div>
+          <div style="font-size: 20px; font-weight: bold;">0</div>
+          <div style="font-size: 12px; color: #64748b;">Water</div>
+        </div>
+        <div style="background: white; padding: 12px; border-radius: 6px; text-align: center;">
+          <div style="font-size: 24px;">🛣️</div>
+          <div style="font-size: 20px; font-weight: bold;">100</div>
+          <div style="font-size: 12px; color: #64748b;">Wegen</div>
+        </div>
+      </div>
+    </div>
+    
+    
+      <h3>Aanbevelingen</h3>
+      <ul>
+        <li>Significante groenvoorziening aanwezig - check compensatieplicht bij kap</li><li>Nabij hoofdweg - check geluidsnormen en luchtkwaliteit</li><li>Dichtbebouwd gebied - extra aandacht voor privacy en bezonning</li>
+      </ul>
+    
+  
+  
+  
+    <h2>Graafwerk Analyse</h2>
+    <div style="background: #dcfce7; border-radius: 8px; padding: 16px; margin: 16px 0; border-left: 4px solid #22c55e;">
+      <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+        <span style="font-size: 24px;">✓</span>
+        <strong>Geen graafwerk gedetecteerd</strong>
+        <span class="badge badge-blue">
+          Zekerheid: laag
+        </span>
+      </div>
+      
+      <p style="margin: 0; color: #4b5563;">Geen graafwerk gedetecteerd op basis van de aanvraag.</p>
+      
+    </div>
+  
+  
+    <h2>Volledigheidscheck Aanvraag</h2>
+    <div style="background: #fee2e2; border-radius: 8px; padding: 16px; margin: 16px 0; border-left: 4px solid #dc2626;">
+      <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+        <span style="font-size: 24px;">⚠️</span>
+        <strong style="color: #991b1b;">
+          Aanvraag is ONVOLLEDIG
+        </strong>
+      </div>
+      <p style="margin: 0 0 12px 0; color: #4b5563;">De aanvraag is onvolledig. Er ontbreken 3 verplichte document(en). De aanvrager dient deze aan te leveren voordat de aanvraag in behandeling kan worden genomen (art. 4:5 Awb).</p>
+      
+        <div style="background: white; border-radius: 6px; padding: 12px; margin-top: 12px;">
+          <strong>Ontbrekende documenten (3):</strong>
+          <table style="margin-top: 8px;">
+            <thead>
+              <tr>
+                <th style="text-align: left; padding: 8px; background: #f9fafb;">Document</th>
+                <th style="text-align: left; padding: 8px; background: #f9fafb;">Wettelijke grondslag</th>
+              </tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">
+                    <strong>Aanvraagformulier</strong>
+                    <div style="font-size: 12px; color: #6b7280;">Volledig ingevuld aanvraagformulier via DSO</div>
+                  </td>
+                  <td style="padding: 8px; border-bottom: 1px solid #e5e7eb; font-size: 12px; color: #3b82f6; font-style: italic;">
+                    ⚖️ Omgevingsregeling art. 7.3 lid 1
+                  </td>
+                </tr>
+              
+                <tr>
+                  <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">
+                    <strong>Situatietekening</strong>
+                    <div style="font-size: 12px; color: #6b7280;">Situatietekening met schaal, noordpijl, afmetingen en afstanden tot perceelsgrenzen</div>
+                  </td>
+                  <td style="padding: 8px; border-bottom: 1px solid #e5e7eb; font-size: 12px; color: #3b82f6; font-style: italic;">
+                    ⚖️ Omgevingsregeling art. 7.3 lid 2 sub a
+                  </td>
+                </tr>
+              
+                <tr>
+                  <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">
+                    <strong>Kadastrale gegevens</strong>
+                    <div style="font-size: 12px; color: #6b7280;">Kadastrale aanduiding van het perceel</div>
+                  </td>
+                  <td style="padding: 8px; border-bottom: 1px solid #e5e7eb; font-size: 12px; color: #3b82f6; font-style: italic;">
+                    ⚖️ Omgevingsregeling art. 7.3 lid 2 sub b
+                  </td>
+                </tr>
+              
+            </tbody>
+          </table>
+        </div>
+      
+      
+        <div style="margin-top: 12px;">
+          <strong>Aanbevelingen:</strong>
+          <ul style="margin: 4px 0 0 20px;">
+            <li>Vraag de aanvrager om 3 ontbrekende document(en) aan te leveren.</li><li>Controleer of de tekeningen voldoen aan de schaalvereisten (1:100 voor plattegronden, 1:1000 voor situatietekening).</li>
+          </ul>
+        </div>
+      
+    </div>
+  
+  
+    <h2>Vereiste Onderzoeken</h2>
+    
+    
+    
+  
+  
+    <h2>DSO Vergunningcheck (Officiële API)</h2>
+    <div style="background: #f3f4f6; border-radius: 8px; padding: 16px; margin: 16px 0; border-left: 4px solid #9ca3af;">
+      <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+        <span style="font-size: 24px;">❓</span>
+        <strong style="font-size: 18px;">Conclusie onbekend</strong>
+      </div>
+      <p style="margin: 0 0 16px 0;">Geen DSO conclusies beschikbaar.</p>
+    </div>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+  
+
+  <h2>Aandachtspunten</h2>
+  
+    <div style="padding: 12px; margin-bottom: 8px; background: #f9fafb; border-radius: 6px; border-left: 4px solid #dc2626;">
+      <div style="font-weight: 600; margin-bottom: 4px;">Welstand <span class="juridisch-risico">⚠️ Juridisch risico</span></div>
+      <div style="color: #4b5563;">Verplichte advisering door de Welstandscommissie (of -adviseur) vanwege de ligging in een beschermd gezicht. Het advies is bindend bij binnenplanse aanvragen (Art. 4.19 Ow).</div>
+      <div style="font-size: 12px; color: #9ca3af; margin-top: 4px;">Prioriteit: hoog</div>
+    </div>
+  
+    <div style="padding: 12px; margin-bottom: 8px; background: #f9fafb; border-radius: 6px; border-left: 4px solid #f59e0b;">
+      <div style="font-weight: 600; margin-bottom: 4px;">Parkeren <span class="juridisch-risico">⚠️ Juridisch risico</span></div>
+      <div style="color: #4b5563;">Indien de bouwactiviteit leidt tot een functiewijziging of uitbreiding, moet de parkeerbehoefte worden getoetst aan het Parkeerbeleid Hoorn. Advies van Team Verkeer is noodzakelijk.</div>
+      <div style="font-size: 12px; color: #9ca3af; margin-top: 4px;">Prioriteit: middel</div>
+    </div>
+  
+    <div style="padding: 12px; margin-bottom: 8px; background: #f9fafb; border-radius: 6px; border-left: 4px solid #f59e0b;">
+      <div style="font-weight: 600; margin-bottom: 4px;">Archeologie </div>
+      <div style="color: #4b5563;">Hoewel de PDOK-analyse geen specifieke zone aangeeft, ligt de locatie in de historische binnenstad van Hoorn. Controleer het Parapluplan Archeologie Hoorn op drempelwaarden voor bodemingrepen (diepte/oppervlakte).</div>
+      <div style="font-size: 12px; color: #9ca3af; margin-top: 4px;">Prioriteit: middel</div>
+    </div>
+  
+    <div style="padding: 12px; margin-bottom: 8px; background: #f9fafb; border-radius: 6px; border-left: 4px solid #dc2626;">
+      <div style="font-weight: 600; margin-bottom: 4px;">Procedure <span class="juridisch-risico">⚠️ Juridisch risico</span></div>
+      <div style="color: #4b5563;">De procedure is als REGULIER (8 weken) vastgesteld onder de aanname dat de aanvraag voldoet aan het Omgevingsplan. Bij afwijking (BOPA) moet de procedure direct worden omgezet naar BOPA_REGULIER met bijbehorende ETFAL-toetsing.</div>
+      <div style="font-size: 12px; color: #9ca3af; margin-top: 4px;">Prioriteit: hoog</div>
+    </div>
+  
+
+  <h2>Bronnen</h2>
+  <ul style="color: #6b7280;">
+    <li>Policy Assist 7-stappen methodiek</li><li>Centrale Beslisboom (toetsingshiërarchie + vergunningplicht)</li><li>Gelaagde Kennisbank (5 lagen, 4 categorieën)</li><li>Omgevingswet</li><li>Besluit bouwwerken leefomgeving</li><li>POV Noord-Holland</li><li>Omgevingsplan Hoorn</li><li>DSO Toepasbare Regels API</li>
+  </ul>
+
+  <div class="footer">
+    <p><strong>Dit rapport is gegenereerd volgens de Policy Assist 7-stappen juridische filtermethodiek.</strong></p>
+    <p>Gegenereerd door Ro-flow AI Behandelassistent op 28-1-2026, 09:31:38.</p>
+    <p>Verwerkingstijd: 18752ms</p>
+    <p style="margin-top: 8px;">© 2026 Ro-flow - Alle rechten voorbehouden</p>
+  </div>
+</body>
+</html>

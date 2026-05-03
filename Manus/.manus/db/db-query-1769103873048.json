@@ -1,0 +1,43 @@
+{
+  "query": "SELECT table_name FROM information_schema.tables WHERE table_schema = DATABASE();",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user EyhbH5D8EpYP7W2.root --database 25kmsrzdTzXv9MeGNQcJZ9 --execute SELECT table_name FROM information_schema.tables WHERE table_schema = DATABASE();",
+  "rows": [
+    {
+      "table_name": "__drizzle_migrations"
+    },
+    {
+      "table_name": "users"
+    },
+    {
+      "table_name": "adviseurs"
+    },
+    {
+      "table_name": "behandelrapport_log"
+    },
+    {
+      "table_name": "beleidsdocumenten"
+    },
+    {
+      "table_name": "gemeente_regio_lookup"
+    },
+    {
+      "table_name": "gemeenten"
+    },
+    {
+      "table_name": "gemini_cache"
+    },
+    {
+      "table_name": "seats"
+    },
+    {
+      "table_name": "payments"
+    },
+    {
+      "table_name": "subscriptions"
+    }
+  ],
+  "messages": [],
+  "stdout": "table_name\n__drizzle_migrations\nusers\nadviseurs\nbehandelrapport_log\nbeleidsdocumenten\ngemeente_regio_lookup\ngemeenten\ngemini_cache\nseats\npayments\nsubscriptions\n",
+  "stderr": "",
+  "execution_time_ms": 371
+}

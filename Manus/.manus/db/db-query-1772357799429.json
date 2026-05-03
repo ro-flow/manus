@@ -1,0 +1,59 @@
+{
+  "query": "SELECT id, zaaknummer, status, verwerkingDuurSec, createdAt FROM behandelrapport_log ORDER BY createdAt DESC LIMIT 20;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user EyhbH5D8EpYP7W2.root --database 25kmsrzdTzXv9MeGNQcJZ9 --execute SELECT id, zaaknummer, status, verwerkingDuurSec, createdAt FROM behandelrapport_log ORDER BY createdAt DESC LIMIT 20;",
+  "rows": [
+    {
+      "id": "30002",
+      "zaaknummer": "TEST-2026-VOLLEDIG",
+      "status": "verzonden",
+      "verwerkingDuurSec": "19.4",
+      "createdAt": "2026-01-28 14:15:34"
+    },
+    {
+      "id": "30001",
+      "zaaknummer": "TEST-2026-VOLLEDIG",
+      "status": "mislukt",
+      "verwerkingDuurSec": "0.5",
+      "createdAt": "2026-01-28 14:13:25"
+    },
+    {
+      "id": "5",
+      "zaaknummer": "TEST-2026-005",
+      "status": "verzonden",
+      "verwerkingDuurSec": "10.2",
+      "createdAt": "2026-01-22 18:11:47"
+    },
+    {
+      "id": "4",
+      "zaaknummer": "TEST-2026-004",
+      "status": "verzonden",
+      "verwerkingDuurSec": "9.0",
+      "createdAt": "2026-01-22 18:05:54"
+    },
+    {
+      "id": "3",
+      "zaaknummer": "TEST-2026-003",
+      "status": "verzonden",
+      "verwerkingDuurSec": "9.9",
+      "createdAt": "2026-01-22 18:05:09"
+    },
+    {
+      "id": "2",
+      "zaaknummer": "TEST-2026-002",
+      "status": "verzonden",
+      "verwerkingDuurSec": "10.6",
+      "createdAt": "2026-01-22 17:51:31"
+    },
+    {
+      "id": "1",
+      "zaaknummer": "TEST-2026-001",
+      "status": "mislukt",
+      "verwerkingDuurSec": "11.2",
+      "createdAt": "2026-01-22 17:48:25"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tzaaknummer\tstatus\tverwerkingDuurSec\tcreatedAt\n30002\tTEST-2026-VOLLEDIG\tverzonden\t19.4\t2026-01-28 14:15:34\n30001\tTEST-2026-VOLLEDIG\tmislukt\t0.5\t2026-01-28 14:13:25\n5\tTEST-2026-005\tverzonden\t10.2\t2026-01-22 18:11:47\n4\tTEST-2026-004\tverzonden\t9.0\t2026-01-22 18:05:54\n3\tTEST-2026-003\tverzonden\t9.9\t2026-01-22 18:05:09\n2\tTEST-2026-002\tverzonden\t10.6\t2026-01-22 17:51:31\n1\tTEST-2026-001\tmislukt\t11.2\t2026-01-22 17:48:25\n",
+  "stderr": "",
+  "execution_time_ms": 53
+}

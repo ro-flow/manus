@@ -1,0 +1,22 @@
+API Koppelingen in Ro-flow:
+
+1. PDOK Locatieserver - Geocodering van adressen, RD-coördinaten bepalen, reverse geocoding
+2. BAG (Basisregistratie Adressen en Gebouwen) - Kadaster API: bouwjaar, pandstatus, gebruiksdoel, oppervlakte, verblijfsobject
+3. DSO (Digitaal Stelsel Omgevingswet) - Vergunningcheck (vergunningplicht/meldingsplicht/vergunningvrij), indieningsvereisten, bevoegd gezag, behandeldienst, toepasbare regels, activiteiten/werkzaamheden, stelselcatalogus
+4. Ruimtelijkeplannen.nl - Bestemmingsplannen, omgevingsplan regels, gebiedsaanwijzingen per locatie
+5. PDOK Natura 2000 - Natura 2000 gebieden detectie, afstandsberekening, stikstofrisico-inschatting
+6. AERIUS Connect API - Stikstof voortoets, validatie API-key, systeeminfo, jobmanagement
+7. PDOK Beschermde Gebieden (CDDA) - NNN-gebieden, nationale parken, beschermde gebieden
+8. PDOK Cultuurhistorie (RCE) - Rijksmonumenten, beschermde stads-/dorpsgezichten
+9. BGT (Basisregistratie Grootschalige Topografie) - Panden, wegen, water, begroeid/onbegroeid terrein, bebouwingsdichtheid
+10. REV (Register Externe Veiligheid) - Bevi-inrichtingen, buisleidingen, veiligheidscontouren
+11. PDOK Milieu endpoints - Stiltegebieden, geluidzones luchthavens, hoofdwegen/spoorwegen omgevingslawaai, bodemloket
+12. BRP Gewaspercelen - Landbouwpercelen detectie (bouwen op landbouwgrond)
+13. PDOK Funderingsproblematiek - Risicogebieden funderingsproblemen
+14. PDOK Grondwaterbeschermingsgebieden - Grondwaterbeschermingszones
+15. PDOK Kadastrale kaart - Perceelgrenzen, kadastrale aanduiding, oppervlakte
+16. OpenRechtspraak (data.rechtspraak.nl) - Jurisprudentie zoeken, uitspraken ophalen
+17. Resend Email API - Versturen behandelrapporten per email
+18. Mollie - Betalingen, abonnementen
+19. Google Maps (via Manus proxy) - Geocoding, directions, places, static maps
+20. LLM (AI) - Analyse van aanvragen via invokeLLM

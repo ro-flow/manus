@@ -1,0 +1,66 @@
+{
+  "query": "SELECT documentType, COUNT(*) as cnt FROM kennisbank_items WHERE documentType IS NOT NULL GROUP BY documentType;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user EyhbH5D8EpYP7W2.root --database 25kmsrzdTzXv9MeGNQcJZ9 --execute SELECT documentType, COUNT(*) as cnt FROM kennisbank_items WHERE documentType IS NOT NULL GROUP BY documentType;",
+  "rows": [
+    {
+      "documentType": "erfgoedvisie",
+      "cnt": "1"
+    },
+    {
+      "documentType": "groenvisie",
+      "cnt": "1"
+    },
+    {
+      "documentType": "beleidsregels_bopa",
+      "cnt": "1"
+    },
+    {
+      "documentType": "omgevingsvisie",
+      "cnt": "1"
+    },
+    {
+      "documentType": "horecabeleid",
+      "cnt": "1"
+    },
+    {
+      "documentType": "duurzaamheidsvisie",
+      "cnt": "1"
+    },
+    {
+      "documentType": "apv",
+      "cnt": "1"
+    },
+    {
+      "documentType": "woonvisie",
+      "cnt": "1"
+    },
+    {
+      "documentType": "welstandsnota",
+      "cnt": "1"
+    },
+    {
+      "documentType": "detailhandelsvisie",
+      "cnt": "1"
+    },
+    {
+      "documentType": "beleidsregels_wonen",
+      "cnt": "1"
+    },
+    {
+      "documentType": "archeologiebeleid",
+      "cnt": "1"
+    },
+    {
+      "documentType": "parkeerbeleid",
+      "cnt": "1"
+    },
+    {
+      "documentType": "recreatiebeleid",
+      "cnt": "1"
+    }
+  ],
+  "messages": [],
+  "stdout": "documentType\tcnt\nerfgoedvisie\t1\ngroenvisie\t1\nbeleidsregels_bopa\t1\nomgevingsvisie\t1\nhorecabeleid\t1\nduurzaamheidsvisie\t1\napv\t1\nwoonvisie\t1\nwelstandsnota\t1\ndetailhandelsvisie\t1\nbeleidsregels_wonen\t1\narcheologiebeleid\t1\nparkeerbeleid\t1\nrecreatiebeleid\t1\n",
+  "stderr": "",
+  "execution_time_ms": 60
+}

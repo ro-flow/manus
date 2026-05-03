@@ -1,0 +1,9 @@
+{
+  "query": "ALTER TABLE `seats` ADD `mollieCustomerId` varchar(100);\nALTER TABLE `seats` ADD `mollieSubscriptionId` varchar(100);\nALTER TABLE `seats` ADD `trialEndsAt` timestamp;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user EyhbH5D8EpYP7W2.root --database 25kmsrzdTzXv9MeGNQcJZ9 --execute ALTER TABLE `seats` ADD `mollieCustomerId` varchar(100);\nALTER TABLE `seats` ADD `mollieSubscriptionId` varchar(100);\nALTER TABLE `seats` ADD `trialEndsAt` timestamp;",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 2503
+}

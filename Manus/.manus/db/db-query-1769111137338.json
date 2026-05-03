@@ -1,0 +1,9 @@
+{
+  "query": "ALTER TABLE `kennisbank_documenten` ADD `juridischeStatus` enum('normstellend','richtinggevend','afwegingskader');\nALTER TABLE `kennisbank_documenten` ADD `isBindend` boolean DEFAULT false;\nALTER TABLE `kennisbank_documenten` ADD `isConcreetGenoeg` boolean DEFAULT true;\nALTER TABLE `kennisbank_documenten` ADD `heeftTweezijdigeWerking` boolean DEFAULT false;\nALTER TABLE `kennisbank_items` ADD `juridischeStatus` enum('normstellend','richtinggevend','afwegingskader');\nALTER TABLE `kennisbank_items` ADD `isBindend` boolean DEFAULT false;\nALTER TABLE `kennisbank_items` ADD `isConcreetGenoeg` boolean DEFAULT true;\nALTER TABLE `kennisbank_items` ADD `heeftTweezijdigeWerking` boolean DEFAULT false;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user EyhbH5D8EpYP7W2.root --database 25kmsrzdTzXv9MeGNQcJZ9 --execute ALTER TABLE `kennisbank_documenten` ADD `juridischeStatus` enum('normstellend','richtinggevend','afwegingskader');\nALTER TABLE `kennisbank_documenten` ADD `isBindend` boolean DEFAULT false;\nALTER TABLE `kennisbank_documenten` ADD `isConcreetGenoeg` boolean DEFAULT true;\nALTER TABLE `kennisbank_documenten` ADD `heeftTweezijdigeWerking` boolean DEFAULT false;\nALTER TABLE `kennisbank_items` ADD `juridischeStatus` enum('normstellend','richtinggevend','afwegingskader');\nALTER TABLE `kennisbank_items` ADD `isBindend` boolean DEFAULT false;\nALTER TABLE `kennisbank_items` ADD `isConcreetGenoeg` boolean DEFAULT true;\nALTER TABLE `kennisbank_items` ADD `heeftTweezijdigeWerking` boolean DEFAULT false;",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 5739
+}

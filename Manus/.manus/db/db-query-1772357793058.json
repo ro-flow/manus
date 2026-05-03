@@ -1,0 +1,258 @@
+{
+  "query": "DESCRIBE behandelrapport_log;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user EyhbH5D8EpYP7W2.root --database 25kmsrzdTzXv9MeGNQcJZ9 --execute DESCRIBE behandelrapport_log;",
+  "rows": [
+    {
+      "Field": "id",
+      "Type": "int(11)",
+      "Null": "NO",
+      "Key": "PRI",
+      "Default": "NULL",
+      "Extra": "auto_increment"
+    },
+    {
+      "Field": "zaaknummer",
+      "Type": "varchar(100)",
+      "Null": "NO",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "gemeenteId",
+      "Type": "int(11)",
+      "Null": "NO",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "behandelaarNaam",
+      "Type": "varchar(200)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "behandelaarEmail",
+      "Type": "varchar(320)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "seatId",
+      "Type": "int(11)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "procedureType",
+      "Type": "enum('VERGUNNINGVRIJ','REGULIER','BOPA_REGULIER','BOPA_UITGEBREID')",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "isVergunningvrij",
+      "Type": "tinyint(1)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "0",
+      "Extra": ""
+    },
+    {
+      "Field": "adres",
+      "Type": "varchar(500)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "kadastraalNummer",
+      "Type": "varchar(100)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "rdX",
+      "Type": "decimal(12,2)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "rdY",
+      "Type": "decimal(12,2)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "pdfUrl",
+      "Type": "text",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "rapportData",
+      "Type": "json",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "status",
+      "Type": "enum('verwerking','verzonden','mislukt','gearchiveerd')",
+      "Null": "YES",
+      "Key": "",
+      "Default": "verwerking",
+      "Extra": ""
+    },
+    {
+      "Field": "verwerkingDuurSec",
+      "Type": "decimal(6,1)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "aiKostenEur",
+      "Type": "decimal(8,4)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "kennisbankBronnen",
+      "Type": "text",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "datumRapport",
+      "Type": "timestamp",
+      "Null": "NO",
+      "Key": "",
+      "Default": "CURRENT_TIMESTAMP",
+      "Extra": ""
+    },
+    {
+      "Field": "createdAt",
+      "Type": "timestamp",
+      "Null": "NO",
+      "Key": "",
+      "Default": "CURRENT_TIMESTAMP",
+      "Extra": ""
+    },
+    {
+      "Field": "projectNaam",
+      "Type": "varchar(255)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "projectOmschrijving",
+      "Type": "text",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "aanvragerNaam",
+      "Type": "varchar(200)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "woonplaats",
+      "Type": "varchar(100)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "wgs84Lat",
+      "Type": "decimal(10,7)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "wgs84Lng",
+      "Type": "decimal(10,7)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "isNatura2000",
+      "Type": "tinyint(1)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "0",
+      "Extra": ""
+    },
+    {
+      "Field": "isRijksmonument",
+      "Type": "tinyint(1)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "0",
+      "Extra": ""
+    },
+    {
+      "Field": "isBeschermdGezicht",
+      "Type": "tinyint(1)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "0",
+      "Extra": ""
+    },
+    {
+      "Field": "isGrondwaterbescherming",
+      "Type": "tinyint(1)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "0",
+      "Extra": ""
+    },
+    {
+      "Field": "rapportSamenvatting",
+      "Type": "text",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    }
+  ],
+  "messages": [],
+  "stdout": "Field\tType\tNull\tKey\tDefault\tExtra\nid\tint(11)\tNO\tPRI\tNULL\tauto_increment\nzaaknummer\tvarchar(100)\tNO\t\tNULL\t\ngemeenteId\tint(11)\tNO\t\tNULL\t\nbehandelaarNaam\tvarchar(200)\tYES\t\tNULL\t\nbehandelaarEmail\tvarchar(320)\tYES\t\tNULL\t\nseatId\tint(11)\tYES\t\tNULL\t\nprocedureType\tenum('VERGUNNINGVRIJ','REGULIER','BOPA_REGULIER','BOPA_UITGEBREID')\tYES\t\tNULL\t\nisVergunningvrij\ttinyint(1)\tYES\t\t0\t\nadres\tvarchar(500)\tYES\t\tNULL\t\nkadastraalNummer\tvarchar(100)\tYES\t\tNULL\t\nrdX\tdecimal(12,2)\tYES\t\tNULL\t\nrdY\tdecimal(12,2)\tYES\t\tNULL\t\npdfUrl\ttext\tYES\t\tNULL\t\nrapportData\tjson\tYES\t\tNULL\t\nstatus\tenum('verwerking','verzonden','mislukt','gearchiveerd')\tYES\t\tverwerking\t\nverwerkingDuurSec\tdecimal(6,1)\tYES\t\tNULL\t\naiKostenEur\tdecimal(8,4)\tYES\t\tNULL\t\nkennisbankBronnen\ttext\tYES\t\tNULL\t\ndatumRapport\ttimestamp\tNO\t\tCURRENT_TIMESTAMP\t\ncreatedAt\ttimestamp\tNO\t\tCURRENT_TIMESTAMP\t\nprojectNaam\tvarchar(255)\tYES\t\tNULL\t\nprojectOmschrijving\ttext\tYES\t\tNULL\t\naanvragerNaam\tvarchar(200)\tYES\t\tNULL\t\nwoonplaats\tvarchar(100)\tYES\t\tNULL\t\nwgs84Lat\tdecimal(10,7)\tYES\t\tNULL\t\nwgs84Lng\tdecimal(10,7)\tYES\t\tNULL\t\nisNatura2000\ttinyint(1)\tYES\t\t0\t\nisRijksmonument\ttinyint(1)\tYES\t\t0\t\nisBeschermdGezicht\ttinyint(1)\tYES\t\t0\t\nisGrondwaterbescherming\ttinyint(1)\tYES\t\t0\t\nrapportSamenvatting\ttext\tYES\t\tNULL\t\n",
+  "stderr": "",
+  "execution_time_ms": 58
+}

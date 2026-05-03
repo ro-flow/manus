@@ -1,0 +1,19 @@
+{
+  "query": "SELECT id, openId, name, email, role, gemeenteId, createdAt FROM users WHERE email = 'policyaiassist@gmail.com';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user EyhbH5D8EpYP7W2.root --database 25kmsrzdTzXv9MeGNQcJZ9 --execute SELECT id, openId, name, email, role, gemeenteId, createdAt FROM users WHERE email = 'policyaiassist@gmail.com';",
+  "rows": [
+    {
+      "id": "1",
+      "openId": "LouHMwL3jYsRcdSxMeVVJa",
+      "name": "PolicyAI Assist",
+      "email": "policyaiassist@gmail.com",
+      "role": "super_admin",
+      "gemeenteId": "NULL",
+      "createdAt": "2026-01-21 20:30:18"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\topenId\tname\temail\trole\tgemeenteId\tcreatedAt\n1\tLouHMwL3jYsRcdSxMeVVJa\tPolicyAI Assist\tpolicyaiassist@gmail.com\tsuper_admin\tNULL\t2026-01-21 20:30:18\n",
+  "stderr": "",
+  "execution_time_ms": 55
+}

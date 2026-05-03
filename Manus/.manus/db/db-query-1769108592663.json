@@ -1,0 +1,186 @@
+{
+  "query": "DESCRIBE gemeenten;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user EyhbH5D8EpYP7W2.root --database 25kmsrzdTzXv9MeGNQcJZ9 --execute DESCRIBE gemeenten;",
+  "rows": [
+    {
+      "Field": "id",
+      "Type": "int(11)",
+      "Null": "NO",
+      "Key": "PRI",
+      "Default": "NULL",
+      "Extra": "auto_increment"
+    },
+    {
+      "Field": "gemeenteNaam",
+      "Type": "varchar(100)",
+      "Null": "NO",
+      "Key": "UNI",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "gemeenteCode",
+      "Type": "varchar(10)",
+      "Null": "NO",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "provincie",
+      "Type": "enum('Drenthe','Flevoland','Friesland','Gelderland','Groningen','Limburg','Noord-Brabant','Noord-Holland','Overijssel','Utrecht','Zeeland','Zuid-Holland')",
+      "Null": "NO",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "waterschapNaam",
+      "Type": "varchar(100)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "waterschapCode",
+      "Type": "varchar(50)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "vrNaam",
+      "Type": "varchar(100)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "vrCode",
+      "Type": "varchar(50)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "odNaam",
+      "Type": "varchar(100)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "odCode",
+      "Type": "varchar(50)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "ggdNaam",
+      "Type": "varchar(100)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "ggdCode",
+      "Type": "varchar(50)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "welstandsniveauDefault",
+      "Type": "enum('Regulier','Bijzonder','Soepel')",
+      "Null": "YES",
+      "Key": "",
+      "Default": "Regulier",
+      "Extra": ""
+    },
+    {
+      "Field": "heeftBeschermdGezicht",
+      "Type": "tinyint(1)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "0",
+      "Extra": ""
+    },
+    {
+      "Field": "contactBeheerder",
+      "Type": "varchar(320)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "lemonOrderId",
+      "Type": "varchar(100)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "lemonSubscriptionId",
+      "Type": "varchar(100)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "seatsGekocht",
+      "Type": "int(11)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "0",
+      "Extra": ""
+    },
+    {
+      "Field": "status",
+      "Type": "enum('pending_activation','actief','inactief','geannuleerd')",
+      "Null": "YES",
+      "Key": "",
+      "Default": "pending_activation",
+      "Extra": ""
+    },
+    {
+      "Field": "lastPolicyUpdate",
+      "Type": "timestamp",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "createdAt",
+      "Type": "timestamp",
+      "Null": "NO",
+      "Key": "",
+      "Default": "CURRENT_TIMESTAMP",
+      "Extra": ""
+    },
+    {
+      "Field": "updatedAt",
+      "Type": "timestamp",
+      "Null": "NO",
+      "Key": "",
+      "Default": "CURRENT_TIMESTAMP",
+      "Extra": "DEFAULT_GENERATED on update CURRENT_TIMESTAMP"
+    }
+  ],
+  "messages": [],
+  "stdout": "Field\tType\tNull\tKey\tDefault\tExtra\nid\tint(11)\tNO\tPRI\tNULL\tauto_increment\ngemeenteNaam\tvarchar(100)\tNO\tUNI\tNULL\t\ngemeenteCode\tvarchar(10)\tNO\t\tNULL\t\nprovincie\tenum('Drenthe','Flevoland','Friesland','Gelderland','Groningen','Limburg','Noord-Brabant','Noord-Holland','Overijssel','Utrecht','Zeeland','Zuid-Holland')\tNO\t\tNULL\t\nwaterschapNaam\tvarchar(100)\tYES\t\tNULL\t\nwaterschapCode\tvarchar(50)\tYES\t\tNULL\t\nvrNaam\tvarchar(100)\tYES\t\tNULL\t\nvrCode\tvarchar(50)\tYES\t\tNULL\t\nodNaam\tvarchar(100)\tYES\t\tNULL\t\nodCode\tvarchar(50)\tYES\t\tNULL\t\nggdNaam\tvarchar(100)\tYES\t\tNULL\t\nggdCode\tvarchar(50)\tYES\t\tNULL\t\nwelstandsniveauDefault\tenum('Regulier','Bijzonder','Soepel')\tYES\t\tRegulier\t\nheeftBeschermdGezicht\ttinyint(1)\tYES\t\t0\t\ncontactBeheerder\tvarchar(320)\tYES\t\tNULL\t\nlemonOrderId\tvarchar(100)\tYES\t\tNULL\t\nlemonSubscriptionId\tvarchar(100)\tYES\t\tNULL\t\nseatsGekocht\tint(11)\tYES\t\t0\t\nstatus\tenum('pending_activation','actief','inactief','geannuleerd')\tYES\t\tpending_activation\t\nlastPolicyUpdate\ttimestamp\tYES\t\tNULL\t\ncreatedAt\ttimestamp\tNO\t\tCURRENT_TIMESTAMP\t\nupdatedAt\ttimestamp\tNO\t\tCURRENT_TIMESTAMP\tDEFAULT_GENERATED on update CURRENT_TIMESTAMP\n",
+  "stderr": "",
+  "execution_time_ms": 360
+}

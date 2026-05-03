@@ -1,0 +1,1 @@
+ALTER TABLE `kennisbank_items` MODIFY COLUMN `documentType` enum('verordening','omgevingsplan','bestemmingsplan','beleidsregel','nota','visie','propositie','kader','programma','afspraak','handreiking','richtlijn','rapport','overig');

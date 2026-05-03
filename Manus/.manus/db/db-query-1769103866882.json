@@ -1,0 +1,43 @@
+{
+  "query": "SHOW TABLES;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user EyhbH5D8EpYP7W2.root --database 25kmsrzdTzXv9MeGNQcJZ9 --execute SHOW TABLES;",
+  "rows": [
+    {
+      "Tables_in_25kmsrzdTzXv9MeGNQcJZ9": "__drizzle_migrations"
+    },
+    {
+      "Tables_in_25kmsrzdTzXv9MeGNQcJZ9": "adviseurs"
+    },
+    {
+      "Tables_in_25kmsrzdTzXv9MeGNQcJZ9": "behandelrapport_log"
+    },
+    {
+      "Tables_in_25kmsrzdTzXv9MeGNQcJZ9": "beleidsdocumenten"
+    },
+    {
+      "Tables_in_25kmsrzdTzXv9MeGNQcJZ9": "gemeente_regio_lookup"
+    },
+    {
+      "Tables_in_25kmsrzdTzXv9MeGNQcJZ9": "gemeenten"
+    },
+    {
+      "Tables_in_25kmsrzdTzXv9MeGNQcJZ9": "gemini_cache"
+    },
+    {
+      "Tables_in_25kmsrzdTzXv9MeGNQcJZ9": "payments"
+    },
+    {
+      "Tables_in_25kmsrzdTzXv9MeGNQcJZ9": "seats"
+    },
+    {
+      "Tables_in_25kmsrzdTzXv9MeGNQcJZ9": "subscriptions"
+    },
+    {
+      "Tables_in_25kmsrzdTzXv9MeGNQcJZ9": "users"
+    }
+  ],
+  "messages": [],
+  "stdout": "Tables_in_25kmsrzdTzXv9MeGNQcJZ9\n__drizzle_migrations\nadviseurs\nbehandelrapport_log\nbeleidsdocumenten\ngemeente_regio_lookup\ngemeenten\ngemini_cache\npayments\nseats\nsubscriptions\nusers\n",
+  "stderr": "",
+  "execution_time_ms": 369
+}

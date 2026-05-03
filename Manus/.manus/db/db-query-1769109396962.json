@@ -1,0 +1,20 @@
+{
+  "query": "SELECT laag, itemType, COUNT(*) as aantal FROM kennisbank_items GROUP BY laag, itemType ORDER BY laag, itemType;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user EyhbH5D8EpYP7W2.root --database 25kmsrzdTzXv9MeGNQcJZ9 --execute SELECT laag, itemType, COUNT(*) as aantal FROM kennisbank_items GROUP BY laag, itemType ORDER BY laag, itemType;",
+  "rows": [
+    {
+      "laag": "rijks",
+      "itemType": "beleidsdocument",
+      "aantal": "14"
+    },
+    {
+      "laag": "rijks",
+      "itemType": "toetsingskader",
+      "aantal": "28"
+    }
+  ],
+  "messages": [],
+  "stdout": "laag\titemType\taantal\nrijks\tbeleidsdocument\t14\nrijks\ttoetsingskader\t28\n",
+  "stderr": "",
+  "execution_time_ms": 361
+}

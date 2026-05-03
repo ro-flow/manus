@@ -1,0 +1,25 @@
+{
+  "query": "SELECT id, naam, triggers FROM kennisbank_items WHERE triggers IS NOT NULL LIMIT 5;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user EyhbH5D8EpYP7W2.root --database 25kmsrzdTzXv9MeGNQcJZ9 --execute SELECT id, naam, triggers FROM kennisbank_items WHERE triggers IS NOT NULL LIMIT 5;",
+  "rows": [
+    {
+      "id": "30001",
+      "naam": "Test Rijks Toetsingskader",
+      "triggers": "[\"bouwen\", \"verbouwen\"]"
+    },
+    {
+      "id": "30002",
+      "naam": "Omgevingsverordening Test",
+      "triggers": "[\"ruimtelijke ordening\"]"
+    },
+    {
+      "id": "30003",
+      "naam": "Waterschap Test",
+      "triggers": "[\"water\", \"watertoets\"]"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tnaam\ttriggers\n30001\tTest Rijks Toetsingskader\t[\"bouwen\", \"verbouwen\"]\n30002\tOmgevingsverordening Test\t[\"ruimtelijke ordening\"]\n30003\tWaterschap Test\t[\"water\", \"watertoets\"]\n",
+  "stderr": "",
+  "execution_time_ms": 56
+}

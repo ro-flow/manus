@@ -1,0 +1,2 @@
+ALTER TABLE `kennisbank_documenten` MODIFY COLUMN `laag` enum('basis','rijks','provinciaal','regionaal','gemeentelijk') NOT NULL;--> statement-breakpoint
+ALTER TABLE `kennisbank_items` MODIFY COLUMN `laag` enum('basis','rijks','provinciaal','regionaal','gemeentelijk') NOT NULL;

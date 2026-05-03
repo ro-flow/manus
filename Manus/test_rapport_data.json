@@ -1,0 +1,104 @@
+{
+  "stikstofVoortoets": {
+    "risicoNiveau": "hoog",
+    "samenvatting": "Locatie ligt op 0.3km van Natura 2000 gebied \"Markermeer & IJmeer\". De activiteiten kunnen stikstofemissies veroorzaken (Bouwverkeer en materieel). Een AERIUS berekening is vereist.",
+    "recommendations": [
+      "Voer een AERIUS Calculator berekening uit",
+      "Bereken depositie op Markermeer & IJmeer",
+      "Overweeg mitigerende maatregelen zoals elektrisch materieel",
+      "Onderzoek mogelijkheden voor intern of extern salderen"
+    ],
+    "emissionSources": ["Bouwverkeer en materieel"],
+    "natura2000Check": {
+      "success": true,
+      "binnenGebied": false,
+      "afstandMeter": 282,
+      "dichtstbijzijndeGebied": "Markermeer & IJmeer",
+      "gebiedenBinnenStraal": [
+        {"naam": "Markermeer & IJmeer", "afstandMeter": 282},
+        {"naam": "Polder Zeevang", "afstandMeter": 8430}
+      ],
+      "stikstofRisico": "hoog",
+      "aanbeveling": "De locatie ligt op 282m van Natura 2000 gebied \"Markermeer & IJmeer\". Een AERIUS berekening is zeer waarschijnlijk vereist."
+    },
+    "beschermdeGebiedenCheck": {
+      "binnenNNN": false,
+      "binnenNationaalPark": false,
+      "dichtstbijzijndeNNN": {"naam": "NNN_NH", "afstandMeter": 2550},
+      "nnnGebiedenCount": 98,
+      "nationaleParkenCount": 0,
+      "aanbevelingen": ["Geen directe ligging in of nabij beschermde natuurgebieden. Standaard stikstoftoets volstaat."]
+    }
+  },
+  "funderingscheck": {
+    "inRisicogebied": true,
+    "risicoNiveau": "hoog",
+    "gebiedsInfo": {
+      "postcodegebied": "1621CW",
+      "gemeente": "Hoorn",
+      "fysischGeografischeRegio": "Zeekleigebied",
+      "percentageVoor1970": 100,
+      "legendaKlasse": "Kwetsbaar gebied - 80-100 %"
+    },
+    "aanbevelingen": [
+      "Deze locatie ligt in een gebied met potentieel funderingsrisico. Adviseer aanvrager om de staat van de fundering te (laten) onderzoeken.",
+      "Let op: Kleigebied. Kleibodem kan zettingsgevoelig zijn. Bij nieuwbouw of uitbreiding constructief advies aanbevolen.",
+      "In dit postcodegebied is 100% van de panden gebouwd voor 1970. Houten paalfunderingen uit die periode kunnen aangetast zijn door paalrot of bacteriële aantasting.",
+      "HOOG RISICO: Sterk aanbevolen om funderingsonderzoek als voorwaarde op te nemen voordat vergunning wordt verleend voor verbouwing of uitbreiding.",
+      "Meer informatie: Kenniscentrum Aanpak Funderingsproblematiek (www.kcaf.nl)"
+    ]
+  },
+  "cultuurhistorieCheck": {
+    "heeftBeschermdeStatus": true,
+    "inBeschermdStadsgezicht": false,
+    "inBeschermdDorpsgezicht": true,
+    "nabijMonumenten": true,
+    "monumentenInOmgeving": 100,
+    "beschermdeGebieden": [
+      {"type": "beschermd_dorpsgezicht", "naam": "Hoorn", "ligging": "binnen"},
+      {"type": "beschermd_dorpsgezicht", "naam": "Hoorn Uitbreiding", "ligging": "nabij"},
+      {"type": "beschermd_stadsgezicht", "naam": "Onbekend", "ligging": "nabij"},
+      {"type": "monument", "naam": "Rijksmonument", "afstand": 1, "ligging": "binnen"},
+      {"type": "monument", "naam": "Rijksmonument", "afstand": 6, "ligging": "binnen"},
+      {"type": "monument", "naam": "Rijksmonument", "afstand": 12, "ligging": "binnen"}
+    ],
+    "aanbevelingen": [
+      "⚠️ Locatie ligt binnen een beschermd dorpsgezicht. Extra welstandseisen van toepassing.",
+      "Raadpleeg de welstandsnota voor specifieke eisen aan materiaalgebruik en vormgeving.",
+      "Mogelijk is advies van de monumentencommissie vereist.",
+      "📍 Rijksmonument binnen 1m: \"Rijksmonument\"",
+      "Check of de werkzaamheden invloed hebben op het monument of de omgeving.",
+      "ℹ️ 100 monumenten in de directe omgeving. Gebied heeft hoge cultuurhistorische waarde."
+    ]
+  },
+  "topografischeAnalyse": {
+    "panden": {"aantal": 100, "statussen": {"bestaand": 100}},
+    "groenvoorziening": {"aanwezig": true, "types": {"groenvoorziening": 11}, "totaalAantal": 11},
+    "water": {"aanwezig": false, "types": {}, "totaalAantal": 0},
+    "wegen": {
+      "aanwezig": true,
+      "functies": {"voetpad": 28, "rijbaan lokale weg": 44, "voetgangersgebied": 14, "parkeervlak": 14},
+      "totaalAantal": 100
+    },
+    "samenvatting": "Topografische analyse: 100 pand(en) in de directe omgeving, groenvoorziening aanwezig (11 elementen), 100 wegdeel(en) in de omgeving.",
+    "aanbevelingen": [
+      "Significante groenvoorziening aanwezig - check compensatieplicht bij kap",
+      "Nabij hoofdweg - check geluidsnormen en luchtkwaliteit",
+      "Dichtbebouwd gebied - extra aandacht voor privacy en bezonning"
+    ]
+  },
+  "isVergunningvrij": false,
+  "procedureType": "REGULIER",
+  "procedureTermijn": 8,
+  "verwerkingDuurMs": 18752,
+  "bronnen": [
+    "Policy Assist 7-stappen methodiek",
+    "Centrale Beslisboom (toetsingshiërarchie + vergunningplicht)",
+    "Gelaagde Kennisbank (5 lagen, 4 categorieën)",
+    "Omgevingswet",
+    "Besluit bouwwerken leefomgeving",
+    "POV Noord-Holland",
+    "Omgevingsplan Hoorn",
+    "DSO Toepasbare Regels API"
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "query": "SELECT id, gemeenteNaam, status FROM gemeenten;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user EyhbH5D8EpYP7W2.root --database 25kmsrzdTzXv9MeGNQcJZ9 --execute SELECT id, gemeenteNaam, status FROM gemeenten;",
+  "rows": [
+    {
+      "id": "1",
+      "gemeenteNaam": "Hoorn",
+      "status": "actief"
+    },
+    {
+      "id": "2",
+      "gemeenteNaam": "Alkmaar",
+      "status": "actief"
+    },
+    {
+      "id": "3",
+      "gemeenteNaam": "Amsterdam",
+      "status": "actief"
+    },
+    {
+      "id": "4",
+      "gemeenteNaam": "Rotterdam",
+      "status": "actief"
+    },
+    {
+      "id": "30003",
+      "gemeenteNaam": "Medemblik",
+      "status": "pending_activation"
+    },
+    {
+      "id": "30004",
+      "gemeenteNaam": "Enkhuizen",
+      "status": "pending_activation"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tgemeenteNaam\tstatus\n1\tHoorn\tactief\n2\tAlkmaar\tactief\n3\tAmsterdam\tactief\n4\tRotterdam\tactief\n30003\tMedemblik\tpending_activation\n30004\tEnkhuizen\tpending_activation\n",
+  "stderr": "",
+  "execution_time_ms": 367
+}
