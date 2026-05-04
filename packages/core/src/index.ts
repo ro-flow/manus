@@ -4,8 +4,8 @@ export type { VolledigheidsInput, VolledigheidsResultaat, OntbrekendStuk } from 
 export { bepaalProcedure } from './procedures.js';
 export type { ProcedureType, ProcedureResultaat } from './procedures.js';
 
-export { buildOntvangstbevestigingPrompt, buildVolledigheidsCheckPrompt } from './brieven.js';
-export type { OntvangstbevestigingContext } from './brieven.js';
+export { buildOntvangstbevestigingPrompt, buildVolledigheidsCheckPrompt, berekenTermijnen } from './brieven.js';
+export type { OntvangstbevestigingContext, BriefTermijnen } from './brieven.js';
 
 export {
   extractNawFromText,

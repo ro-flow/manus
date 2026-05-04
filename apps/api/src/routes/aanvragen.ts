@@ -10,6 +10,7 @@ import {
   bepaalProcedure,
   buildOntvangstbevestigingPrompt,
   buildVolledigheidsCheckPrompt,
+  berekenTermijnen,
   extractNawFromText,
   sanitizeTextForAI,
   buildExtractiePrompt,
@@ -316,8 +317,13 @@ aanvragenRouter.post('/:id/volledigheidscheck', async (req, res, next) => {
   }
 });
 
-// POST /api/aanvragen/:id/ontvangstbevestiging — conceptbrief genereren
-// AI genereert tekst met placeholders; backend vult NAW in na ontvangst
+const OntvangstbevestigingBodySchema = z.object({
+  aanvraagType: z.enum(['formeel', 'concept']).default('formeel'),
+});
+
+// POST /api/aanvragen/:id/ontvangstbevestiging — brief genereren (5 varianten)
+// Variant A/B: volledig · Variant C/D: onvolledig · Variant E: concept
+// AI genereert met placeholders; backend vult NAW in via restoreTemplateFields
 aanvragenRouter.post('/:id/ontvangstbevestiging', async (req, res, next) => {
   try {
     const aanvraag = await aanvraagRepository.findById(req.params.id);
@@ -326,13 +332,35 @@ aanvragenRouter.post('/:id/ontvangstbevestiging', async (req, res, next) => {
       return;
     }
 
+    const { aanvraagType } = OntvangstbevestigingBodySchema.parse(req.body);
+
+    // Stap 1 — deterministische volledigheidscheck
+    const perceelInput: PerceelInput = {
+      id: aanvraag.id,
+      kadastraleAanduiding: 'Onbekend',
+      activiteiten: [toActiviteit(aanvraag.activiteitType)],
+      ingediendeDocs: [],
+      bouwjaar: null,
+    };
+    const completenessResultaat = checkCompleteness([perceelInput]);
+    const briefData = buildBriefData(completenessResultaat);
+
+    // Stap 2 — procedure + termijnen berekenen
+    const procedureResultaat = bepaalProcedure(aanvraag.activiteitType);
+    const termijnen = berekenTermijnen(
+      new Date(aanvraag.createdAt),
+      procedureResultaat.procedure,
+      completenessResultaat.volledig
+    );
+
+    // Stap 3 — privacy-check op aanvraagcontext
     const rawContext = {
       gemeente: aanvraag.gemeente,
+      gebiedstype: aanvraag.gebiedstype ?? undefined,
       activiteitType: aanvraag.activiteitType ?? undefined,
       activiteitOmschrijving: aanvraag.activiteitOmschrijving ?? undefined,
     };
 
-    // Privacy-check — bij NAW-detectie wordt de blokkering gelogd en de aanroep geannuleerd
     let sanitizedContext;
     try {
       sanitizedContext = sanitizeForAI(rawContext);
@@ -349,17 +377,26 @@ aanvragenRouter.post('/:id/ontvangstbevestiging', async (req, res, next) => {
       throw privacyErr;
     }
 
-    const procedureResultaat = bepaalProcedure(aanvraag.activiteitType);
+    // Stap 4 — prompt bouwen
     const { systemPrompt, userPrompt } = buildOntvangstbevestigingPrompt({
-      ...sanitizedContext,
       gemeente: sanitizedContext.gemeente ?? aanvraag.gemeente,
+      zaaknummer: aanvraag.id,
+      ontvangstdatum: termijnen.ontvangstdatum,
+      activiteitType: sanitizedContext.activiteitType,
+      activiteitOmschrijving: sanitizedContext.activiteitOmschrijving,
+      gebiedstype: sanitizedContext.gebiedstype,
+      aanvraagType,
       procedureType: procedureResultaat.procedure,
       doorlooptijd: procedureResultaat.doorlooptijd,
+      volledig: completenessResultaat.volledig,
+      beslistermijnDatum: termijnen.beslistermijnDatum,
+      aanvuldeadlineDatum: termijnen.aanvuldeadlineDatum,
+      briefData,
     });
 
+    // Stap 5 — AI aanroep
     const ai = createAIClient();
     const start = Date.now();
-
     const briefMetPlaceholders = await ai.generateText(systemPrompt, userPrompt);
     const durationMs = String(Date.now() - start);
 
@@ -367,12 +404,12 @@ aanvragenRouter.post('/:id/ontvangstbevestiging', async (req, res, next) => {
       aanvraagId: aanvraag.id,
       provider: ai.provider,
       model: ai.model,
-      sanitizedPayload: { systemPrompt, context: sanitizedContext },
+      sanitizedPayload: { context: sanitizedContext, briefData, aanvraagType },
       aiResponse: briefMetPlaceholders,
       durationMs,
     });
 
-    // NAW ophalen uit beveiligde opslag en placeholders vervangen — alles binnen Azure
+    // Stap 6 — NAW restore binnen Azure
     const pii = await aanvraagRepository.findPiiByAanvraagId(aanvraag.id);
     const briefVolledig = pii
       ? restoreTemplateFields(briefMetPlaceholders, {
@@ -388,6 +425,15 @@ aanvragenRouter.post('/:id/ontvangstbevestiging', async (req, res, next) => {
     res.json({
       brief: briefVolledig,
       procedure: procedureResultaat,
+      volledigheid: {
+        volledig: completenessResultaat.volledig,
+        aantalOntbrekend: completenessResultaat.aantalVerplichtOntbrekendTotaal,
+      },
+      termijnen,
+      variant: aanvraagType === 'concept' ? 'E'
+        : completenessResultaat.volledig && procedureResultaat.procedure !== 'uitgebreid' ? 'A'
+        : completenessResultaat.volledig ? 'B'
+        : procedureResultaat.procedure !== 'uitgebreid' ? 'C' : 'D',
     });
   } catch (err) {
     next(err);

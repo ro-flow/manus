@@ -2,10 +2,11 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 
 const NAV_ITEMS = [
-  { label: 'WAAROM',         href: '/#waarom' },
-  { label: 'HOE HET WERKT', href: '/#hoe-het-werkt' },
-  { label: 'PILOT',         href: '/#pilot' },
-  { label: 'FAQ',           href: '/#faq' },
+  { label: 'WAAROM',          href: '/#waarom' },
+  { label: 'HOE HET WERKT',  href: '/#hoe-het-werkt' },
+  { label: 'PILOT',           href: '/#pilot' },
+  { label: 'VERANTWOORDE AI', href: '/#avg' },
+  { label: 'FAQ',             href: '/#faq' },
 ];
 
 export function Navbar() {
@@ -25,7 +26,7 @@ export function Navbar() {
         </Link>
 
         {/* Desktop nav */}
-        <div className="hidden xl:flex items-center gap-6 flex-1 justify-center">
+        <div className="hidden lg:flex items-center gap-6 flex-1 justify-center">
           {NAV_ITEMS.map((item) => (
             <a key={item.label} href={item.href} className="nav-link whitespace-nowrap">
               {item.label}
@@ -34,12 +35,12 @@ export function Navbar() {
         </div>
 
         {/* Desktop CTAs */}
-        <div className="hidden xl:flex items-center gap-3 flex-shrink-0">
+        <div className="hidden lg:flex items-center gap-3 flex-shrink-0">
           <Link
             to="/aanvraag"
             className="text-xs font-bold tracking-wider text-orange hover:text-orange-light uppercase transition-colors whitespace-nowrap"
           >
-            Scan Dashboard
+            Scan starten →
           </Link>
           <Link
             to="/dashboard"
@@ -53,7 +54,7 @@ export function Navbar() {
         </div>
 
         {/* Mobile: scan knop + hamburger */}
-        <div className="xl:hidden flex items-center gap-3">
+        <div className="lg:hidden flex items-center gap-3">
           <Link to="/aanvraag" className="btn-primary text-xs py-2 px-4">
             Scan starten
           </Link>
@@ -77,7 +78,7 @@ export function Navbar() {
 
       {/* Mobile menu */}
       {menuOpen && (
-        <div className="xl:hidden bg-bg-card border-t border-bg-light px-6 py-4 space-y-1">
+        <div className="lg:hidden bg-bg-card border-t border-bg-light px-6 py-4 space-y-1">
           {NAV_ITEMS.map((item) => (
             <a
               key={item.label}
