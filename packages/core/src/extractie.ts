@@ -52,25 +52,30 @@ export function extractNawFromText(text: string): NawExtractie {
   const postcodeMatch = postcodeLabeled ?? postcodeStandalone;
   if (postcodeMatch) result.postcode = postcodeMatch[1].trim();
 
-  // Name — stops before any next known label
+  // Name — many label variants used in Dutch government forms
   const naamRe = new RegExp(
-    String.raw`(?:naam\s+aanvrager|naam\s+indiener|naam\s+gemachtigde|naam\s*:|aanvrager\s*:)\s*` +
-    String.raw`([A-Za-zÀ-ÿ\s'.,-]{2,60})` +
+    String.raw`(?:naam\s+aanvrager|naam\s+indiener|naam\s+gemachtigde|` +
+    String.raw`naam\s*[/]\s*organisatie|naam\s*[/]\s*bedrijf|` +
+    String.raw`organisatienaam|organisatie|bedrijfsnaam|rechtspersoon|` +
+    String.raw`naam\s*:|indiener\s*:|aanvrager\s*:)\s*` +
+    String.raw`([A-Za-zÀ-ÿ0-9\s'.&,-]{2,80})` +
     LABEL_STOP.source,
     'i'
   );
   const naamMatch = text.match(naamRe);
   if (naamMatch) {
     const kandidaat = naamMatch[1].trim().replace(/\s+/g, ' ');
-    if (kandidaat.length > 2 && !kandidaat.includes('@') && !/^\d/.test(kandidaat)) {
+    if (kandidaat.length > 2 && !kandidaat.includes('@') && !/^\d{4}/.test(kandidaat)) {
       result.naam = kandidaat;
     }
   }
 
-  // Address — stop before next label
+  // Address — many label variants, including organisation-specific ones
   const adresRe = new RegExp(
-    String.raw`(?:straat\s+en\s+huisnummer|straat\s*:|adres\s*:|woonadres\s*:|postadres\s*:)\s*` +
-    String.raw`([^\n\r]{5,60})` +
+    String.raw`(?:straat\s+en\s+huisnummer|straatnaam\s+en\s+huisnummer|` +
+    String.raw`locatieadres|bezoekadres|vestigingsadres|correspondentieadres|` +
+    String.raw`straat\s*:|straatnaam\s*:|adres\s*:|woonadres\s*:|postadres\s*:)\s*` +
+    String.raw`([^\n\r]{5,80})` +
     LABEL_STOP.source,
     'i'
   );
@@ -79,7 +84,7 @@ export function extractNawFromText(text: string): NawExtractie {
 
   // Woonplaats — stop before next label
   const plaatsRe = new RegExp(
-    String.raw`(?:woonplaats|plaats)\s*:\s*` +
+    String.raw`(?:woonplaats|vestigingsplaats|plaats\s+van\s+vestiging|plaats)\s*:\s*` +
     String.raw`([A-Za-zÀ-ÿ\s'-]{2,40})` +
     LABEL_STOP.source,
     'i'

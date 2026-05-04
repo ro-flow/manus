@@ -2,7 +2,6 @@ import { Router } from 'express';
 import multer from 'multer';
 import { z } from 'zod';
 import { unzipSync } from 'fflate';
-import { getDocumentProxy, extractText } from 'unpdf';
 import { aanvraagRepository, aiLogRepository } from '@ro-flow/db';
 import { sanitizeForAI, restoreTemplateFields, PrivacyViolationError } from '@ro-flow/privacy';
 import { createAIClient } from '@ro-flow/ai';
@@ -32,6 +31,7 @@ function toActiviteit(type: string | null | undefined): Activiteit {
   return GELDIGE_ACTIVITEITEN.has(lower) ? lower : 'overig';
 }
 import { uploadToBlobStorage } from '../azure/blobStorage.js';
+import { extracteerUitPDF } from '../azure/documentIntelligence.js';
 
 export const aanvragenRouter: ReturnType<typeof Router> = Router();
 
@@ -80,11 +80,6 @@ function xmlUitZip(buffer: Buffer): string {
   return Buffer.from(xmlEntry[1]).toString('utf-8');
 }
 
-async function extractPdfTekst(buffer: Buffer): Promise<string> {
-  const pdf = await getDocumentProxy(new Uint8Array(buffer));
-  const { text } = await extractText(pdf, { mergePages: true });
-  return text;
-}
 
 // Validatieschema's
 const CreateAanvraagSchema = z.object({
@@ -134,17 +129,19 @@ aanvragenRouter.post('/extraheer', uploadExtractie.single('bestand'), async (req
       });
     }
 
-    // ── PDF: NAW via regex, inhoud via Groq ───────────────────────────────
-    const rawText = await extractPdfTekst(req.file.buffer);
+    // ── PDF: Azure Document Intelligence → gestructureerde tekst → Groq ────
+    const rawText = await extracteerUitPDF(req.file.buffer);
 
     if (!rawText.trim()) {
       res.status(422).json({ error: 'Geen leesbare tekst gevonden in de PDF' });
       return;
     }
 
+    // NAW via regex uit de gestructureerde tekst — nooit naar AI
     const naw = extractNawFromText(rawText);
     const sanitizedText = sanitizeTextForAI(rawText, naw);
 
+    // Groq bepaalt gemeente, activiteitType, omschrijving, locatieContext
     const { systemPrompt, userPrompt } = buildExtractiePrompt(sanitizedText);
     const ai = createAIClient();
     const start = Date.now();
