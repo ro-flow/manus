@@ -76,6 +76,22 @@ export const aiAuditLog = pgTable(
   })
 );
 
+// Pilot-aanmeldingen — geen PII buiten naam/email/telefoon in eigen tabel
+export const pilotAanmeldingen = pgTable('pilot_aanmeldingen', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  gemeente: varchar('gemeente', { length: 100 }).notNull(),
+  naam: varchar('naam', { length: 200 }).notNull(),
+  functie: varchar('functie', { length: 200 }),
+  email: text('email').notNull(),
+  telefoon: varchar('telefoon', { length: 50 }),
+  aanvragenPerJaar: varchar('aanvragen_per_jaar', { length: 50 }),
+  toelichting: text('toelichting'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+});
+
+export type PilotAanmelding = typeof pilotAanmeldingen.$inferSelect;
+export type NewPilotAanmelding = typeof pilotAanmeldingen.$inferInsert;
+
 export type Aanvraag = typeof aanvragen.$inferSelect;
 export type NewAanvraag = typeof aanvragen.$inferInsert;
 export type AanvragerPii = typeof aanvragerPii.$inferSelect;

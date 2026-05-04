@@ -8,6 +8,13 @@
       "when": 1777811751972,
       "tag": "0000_perfect_galactus",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1777821740452,
+      "tag": "0001_lazy_starjammers",
+      "breakpoints": true
     }
   ]
 }

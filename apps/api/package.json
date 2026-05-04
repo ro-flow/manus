@@ -17,7 +17,9 @@
     "@ro-flow/db": "workspace:*",
     "@ro-flow/privacy": "workspace:*",
     "express": "^4.19.0",
+    "fflate": "^0.8.0",
     "multer": "^1.4.5-lts.1",
+    "unpdf": "^0.12.0",
     "zod": "^3.22.0"
   },
   "devDependencies": {

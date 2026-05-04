@@ -2,6 +2,7 @@ import express from 'express';
 import { aanvragenRouter } from './routes/aanvragen.js';
 import { healthRouter } from './routes/health.js';
 import { aiLogRouter } from './routes/aiLog.js';
+import { pilotRouter } from './routes/pilotAanmeldingen.js';
 import { errorHandler } from './middleware/errorHandler.js';
 
 const app = express();
@@ -14,6 +15,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/api/health', healthRouter);
 app.use('/api/aanvragen', aanvragenRouter);
 app.use('/api/ai-log', aiLogRouter);
+app.use('/api/pilot-aanmeldingen', pilotRouter);
 
 // Centrale foutafhandeling — inclusief PrivacyViolationError
 app.use(errorHandler);

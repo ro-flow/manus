@@ -39,17 +39,24 @@ export function buildVolledigheidsCheckPrompt(ctx: {
   activiteitType?: string | null;
   activiteitOmschrijving?: string | null;
   gemeente: string;
+  briefData?: object;
 }): { systemPrompt: string; userPrompt: string } {
-  const systemPrompt = `Je bent een expert in omgevingsvergunningen en de Wet ruimtelijke ordening.
-Controleer welke documenten en gegevens ontbreken voor een volledige aanvraag.
-Geef een gestructureerd overzicht van ontbrekende stukken.
-Noem NOOIT namen, adressen of andere persoonsgegevens.`;
+  const systemPrompt = `Je bent een gemeentelijk behandelaar omgevingsvergunningen in ${ctx.gemeente}.
+Schrijf een beknopte toelichting bij de volledigheidscheck van een ingediende aanvraag.
+Baseer je uitsluitend op de aangeleverde gegevens.
+Noem NOOIT namen, adressen of andere persoonsgegevens.
+Gebruik een professionele maar toegankelijke toon.
+Verwijs bij ontbrekende stukken naar de wettelijke grondslag als die is meegegeven.`;
+
+  const ontbrekendeStukkenTekst = ctx.briefData
+    ? `\n\nUitkomst volledigheidscheck:\n${JSON.stringify(ctx.briefData, null, 2)}`
+    : '';
 
   const userPrompt = `Activiteitstype: ${ctx.activiteitType ?? 'onbekend'}
 Omschrijving: ${ctx.activiteitOmschrijving ?? 'geen omschrijving'}
-Gemeente: ${ctx.gemeente}
+Gemeente: ${ctx.gemeente}${ontbrekendeStukkenTekst}
 
-Welke documenten zijn verplicht en welke ontbreken mogelijk voor deze aanvraag?`;
+Schrijf een korte toelichting (max 150 woorden) voor de behandelaar over de volledigheid van deze aanvraag. Noem specifiek welke stukken ontbreken en waarom ze vereist zijn. Sluit af met een aanbeveling.`;
 
   return { systemPrompt, userPrompt };
 }

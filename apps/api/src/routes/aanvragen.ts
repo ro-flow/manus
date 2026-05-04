@@ -1,30 +1,89 @@
 import { Router } from 'express';
 import multer from 'multer';
 import { z } from 'zod';
+import { unzipSync } from 'fflate';
+import { getDocumentProxy, extractText } from 'unpdf';
 import { aanvraagRepository, aiLogRepository } from '@ro-flow/db';
 import { sanitizeForAI, restoreTemplateFields, PrivacyViolationError } from '@ro-flow/privacy';
 import { createAIClient } from '@ro-flow/ai';
 import {
-  checkVolledigheid,
   bepaalProcedure,
   buildOntvangstbevestigingPrompt,
   buildVolledigheidsCheckPrompt,
+  extractNawFromText,
+  sanitizeTextForAI,
+  buildExtractiePrompt,
+  parseExtractieResponse,
+  parseDsoXml,
+  checkCompleteness,
+  buildBriefData,
+  type PerceelInput,
+  type Activiteit,
 } from '@ro-flow/core';
+
+const GELDIGE_ACTIVITEITEN = new Set<Activiteit>([
+  'bouwen', 'slopen', 'kappen', 'milieu', 'aanleggen',
+  'uitweg', 'bopa', 'monument', 'functiewijziging', 'overig',
+]);
+
+function toActiviteit(type: string | null | undefined): Activiteit {
+  const lower = (type ?? '').toLowerCase() as Activiteit;
+  return GELDIGE_ACTIVITEITEN.has(lower) ? lower : 'overig';
+}
 import { uploadToBlobStorage } from '../azure/blobStorage.js';
 
 export const aanvragenRouter: ReturnType<typeof Router> = Router();
+
+const ZIP_MIMETYPES = new Set([
+  'application/zip',
+  'application/x-zip-compressed',
+  'application/octet-stream',
+]);
+
+const uploadExtractie = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 50 * 1024 * 1024 },
+  fileFilter: (_req, file, cb) => {
+    const ext = file.originalname.toLowerCase();
+    const isZip = ZIP_MIMETYPES.has(file.mimetype) || ext.endsWith('.zip');
+    const isXml = ['text/xml', 'application/xml'].includes(file.mimetype) || ext.endsWith('.xml');
+    const isPdf = file.mimetype === 'application/pdf' || ext.endsWith('.pdf');
+    if (isPdf || isXml || isZip) cb(null, true);
+    else cb(new Error('Alleen PDF-, XML- of ZIP/DSO-bestanden zijn toegestaan'));
+  },
+});
 
 const upload = multer({
   storage: multer.memoryStorage(),
   limits: { fileSize: 50 * 1024 * 1024 },
   fileFilter: (_req, file, cb) => {
-    if (file.mimetype === 'application/pdf') {
-      cb(null, true);
-    } else {
-      cb(new Error('Alleen PDF-bestanden zijn toegestaan'));
-    }
+    if (file.mimetype === 'application/pdf') cb(null, true);
+    else cb(new Error('Alleen PDF-bestanden zijn toegestaan'));
   },
 });
+
+function detectBestandstype(mimetype: string, filename: string): 'pdf' | 'xml' | 'zip' {
+  const ext = filename.toLowerCase();
+  if (ext.endsWith('.zip') || ZIP_MIMETYPES.has(mimetype)) return 'zip';
+  if (ext.endsWith('.xml') || ['text/xml', 'application/xml'].includes(mimetype)) return 'xml';
+  return 'pdf';
+}
+
+
+function xmlUitZip(buffer: Buffer): string {
+  const bestanden = unzipSync(new Uint8Array(buffer));
+  const xmlEntry = Object.entries(bestanden).find(
+    ([naam]) => naam.toLowerCase().endsWith('.xml') && !naam.includes('__MACOSX')
+  );
+  if (!xmlEntry) throw new Error('Geen XML gevonden in ZIP-bestand');
+  return Buffer.from(xmlEntry[1]).toString('utf-8');
+}
+
+async function extractPdfTekst(buffer: Buffer): Promise<string> {
+  const pdf = await getDocumentProxy(new Uint8Array(buffer));
+  const { text } = await extractText(pdf, { mergePages: true });
+  return text;
+}
 
 // Validatieschema's
 const CreateAanvraagSchema = z.object({
@@ -42,6 +101,75 @@ const CreateAanvraagSchema = z.object({
       woonplaats: z.string().max(100).optional(),
     })
     .optional(),
+});
+
+// POST /api/aanvragen/extraheer — gegevens uit PDF, DSO-ZIP of XML halen
+// PDF  → Groq AI (gesanitized, geen NAW naar AI)
+// ZIP/XML → DSO XML parser, volledig zonder AI
+aanvragenRouter.post('/extraheer', uploadExtractie.single('bestand'), async (req, res, next) => {
+  try {
+    if (!req.file) {
+      res.status(400).json({ error: 'Geen bestand bijgevoegd' });
+      return;
+    }
+
+    const type = detectBestandstype(req.file.mimetype, req.file.originalname);
+
+    // ── DSO ZIP of XML: direct parsen, geen AI ────────────────────────────
+    if (type === 'zip' || type === 'xml') {
+      const xmlString = type === 'zip'
+        ? xmlUitZip(req.file.buffer)
+        : req.file.buffer.toString('utf-8');
+
+      const resultaat = parseDsoXml(xmlString);
+
+      return res.json({
+        gemeente:               resultaat.gemeente,
+        activiteitType:         resultaat.activiteitType,
+        activiteitOmschrijving: resultaat.activiteitOmschrijving,
+        locatieContext:         resultaat.locatieContext,
+        naw:                    resultaat.naw,
+        methode:                'dso_xml',
+      });
+    }
+
+    // ── PDF: NAW via regex, inhoud via Groq ───────────────────────────────
+    const rawText = await extractPdfTekst(req.file.buffer);
+
+    if (!rawText.trim()) {
+      res.status(422).json({ error: 'Geen leesbare tekst gevonden in de PDF' });
+      return;
+    }
+
+    const naw = extractNawFromText(rawText);
+    const sanitizedText = sanitizeTextForAI(rawText, naw);
+
+    const { systemPrompt, userPrompt } = buildExtractiePrompt(sanitizedText);
+    const ai = createAIClient();
+    const start = Date.now();
+    const aiResponse = await ai.generateText(systemPrompt, userPrompt);
+
+    await aiLogRepository.log({
+      provider: ai.provider,
+      model: ai.model,
+      sanitizedPayload: { bron: 'pdf-extractie', tekstLengte: sanitizedText.length },
+      aiResponse,
+      durationMs: String(Date.now() - start),
+    });
+
+    const aiData = parseExtractieResponse(aiResponse);
+
+    return res.json({
+      gemeente:               aiData.gemeente,
+      activiteitType:         aiData.activiteitType,
+      activiteitOmschrijving: aiData.activiteitOmschrijving,
+      locatieContext:         aiData.locatieContext,
+      naw,
+      methode: 'pdf_ai',
+    });
+  } catch (err) {
+    next(err);
+  }
 });
 
 // POST /api/aanvragen — aanvraag aanmaken
@@ -115,7 +243,8 @@ aanvragenRouter.post('/:id/pdf', upload.single('pdf'), async (req, res, next) =>
 });
 
 // POST /api/aanvragen/:id/volledigheidscheck — ontbrekende stukken bepalen
-// AI krijgt alleen geschoonde context — nooit NAW
+// Stap 1: checkCompleteness (deterministisch, geen AI)
+// Stap 2: AI genereert toelichting op basis van de uitkomst — nooit NAW
 aanvragenRouter.post('/:id/volledigheidscheck', async (req, res, next) => {
   try {
     const aanvraag = await aanvraagRepository.findById(req.params.id);
@@ -124,14 +253,24 @@ aanvragenRouter.post('/:id/volledigheidscheck', async (req, res, next) => {
       return;
     }
 
+    // Stap 1 — deterministische volledigheidscheck (geen AI, geen PII risico)
+    const perceelInput: PerceelInput = {
+      id: aanvraag.id,
+      kadastraleAanduiding: 'Onbekend',
+      activiteiten: [toActiviteit(aanvraag.activiteitType)],
+      ingediendeDocs: [], // MVP: document-metadata nog niet opgeslagen
+      bouwjaar: null,
+    };
+    const completenessResultaat = checkCompleteness([perceelInput]);
+    const briefData = buildBriefData(completenessResultaat);
+
+    // Stap 2 — AI toelichting met gesanitized context + check-uitkomst
     const rawContext = {
       gemeente: aanvraag.gemeente,
-      gebiedstype: aanvraag.gebiedstype ?? undefined,
       activiteitType: aanvraag.activiteitType ?? undefined,
       activiteitOmschrijving: aanvraag.activiteitOmschrijving ?? undefined,
     };
 
-    // Privacy-check — bij NAW-detectie wordt de blokkering gelogd en de aanroep geannuleerd
     let sanitizedContext;
     try {
       sanitizedContext = sanitizeForAI(rawContext);
@@ -151,10 +290,11 @@ aanvragenRouter.post('/:id/volledigheidscheck', async (req, res, next) => {
     const { systemPrompt, userPrompt } = buildVolledigheidsCheckPrompt({
       ...sanitizedContext,
       gemeente: sanitizedContext.gemeente ?? aanvraag.gemeente,
+      briefData,
     });
+
     const ai = createAIClient();
     const start = Date.now();
-
     const aiToelichting = await ai.generateText(systemPrompt, userPrompt);
     const durationMs = String(Date.now() - start);
 
@@ -162,20 +302,15 @@ aanvragenRouter.post('/:id/volledigheidscheck', async (req, res, next) => {
       aanvraagId: aanvraag.id,
       provider: ai.provider,
       model: ai.model,
-      sanitizedPayload: { systemPrompt, context: sanitizedContext },
+      sanitizedPayload: { context: sanitizedContext, briefData },
       aiResponse: aiToelichting,
       durationMs,
     });
 
-    const resultaat = checkVolledigheid(
-      {
-        activiteitType: aanvraag.activiteitType,
-        activiteitOmschrijving: aanvraag.activiteitOmschrijving,
-      },
-      aiToelichting
-    );
-
-    res.json(resultaat);
+    res.json({
+      ...completenessResultaat,
+      aiToelichting,
+    });
   } catch (err) {
     next(err);
   }
