@@ -36,7 +36,7 @@ function toActiviteit(type: string | null | undefined): Activiteit {
   const lower = (type ?? '').toLowerCase() as Activiteit;
   return GELDIGE_ACTIVITEITEN.has(lower) ? lower : 'overig';
 }
-import { uploadToBlobStorage } from '../azure/blobStorage.js';
+import { uploadPDF } from '../azure/blobStorage.js';
 import { extracteerUitPDF } from '../azure/documentIntelligence.js';
 
 export const aanvragenRouter: ReturnType<typeof Router> = Router();
@@ -336,7 +336,7 @@ aanvragenRouter.post('/:id/pdf', upload.single('pdf'), async (req, res, next) =>
       return;
     }
 
-    const blobUrl = await uploadToBlobStorage(
+    const blobUrl = await uploadPDF(
       req.params.id,
       req.file.buffer,
       req.file.originalname
