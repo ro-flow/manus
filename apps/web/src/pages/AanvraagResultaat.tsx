@@ -59,6 +59,58 @@ interface OntvangstbevestigingResultaat {
 
 type AanvraagType = 'formeel' | 'concept';
 
+interface BehandelrapportBestemmingsplanToets {
+  kadastraleAanduiding: string;
+  bestemmingsplan: { naam: string; imroCode: string; vastgesteld: string } | null;
+  enkelbestemming: string[];
+  dubbelbestemming: string[];
+  gebiedsaanduidingen: string[];
+  afwijkingGesignaleerd: boolean;
+  afwijkingToelichting?: string;
+  pdokBereikbaar: boolean;
+  fout?: string;
+}
+
+interface BehandelrapportActiviteit {
+  kadastraleAanduiding: string;
+  activiteiten: string[];
+  ingediendeDocs: string[];
+  bouwjaar?: string;
+}
+
+interface BehandelrapportBron {
+  naam: string;
+  url?: string;
+  geraadpleegd: string;
+}
+
+interface BehandelrapportData {
+  intern: boolean;
+  gegenereerd: string;
+  aanvraag: {
+    id: string;
+    gemeente: string;
+    activiteitType?: string;
+    activiteitOmschrijving?: string;
+    aanvraagnummer?: string;
+    aanvraagdatum?: string;
+    status: string;
+  };
+  procedure: ProcedureResultaat & { termijnen?: BriefTermijnen };
+  volledigheid: {
+    volledig: boolean;
+    aantalVerplichtOntbrekend: number;
+    percelen: PerceelResultaat[];
+    samenvatting: string;
+  };
+  activiteitenSamenvatting: BehandelrapportActiviteit[];
+  bestemmingsplanToets: BehandelrapportBestemmingsplanToets[] | null;
+  isBopa: boolean;
+  aandachtspunten: string[];
+  bronnen: BehandelrapportBron[];
+  voorbehoud: string;
+}
+
 const PROCEDURE_LABELS: Record<string, { label: string; color: string }> = {
   regulier: { label: 'Reguliere procedure', color: 'text-blue-300 bg-blue-900/30 border-blue-700/50' },
   uitgebreid: { label: 'Uitgebreide procedure', color: 'text-orange-300 bg-orange-900/30 border-orange-700/50' },
@@ -103,6 +155,28 @@ export function AanvraagResultaat() {
   const [errorBrief, setErrorBrief] = useState('');
 
   const [briefKopied, setBriefKopied] = useState(false);
+
+  const [showRapport, setShowRapport] = useState(false);
+  const [rapport, setRapport] = useState<BehandelrapportData | null>(null);
+  const [loadingRapport, setLoadingRapport] = useState(false);
+  const [errorRapport, setErrorRapport] = useState('');
+  const [expandedBpPercelen, setExpandedBpPercelen] = useState<Set<number>>(new Set([0]));
+  const [expandedActPercelen, setExpandedActPercelen] = useState<Set<number>>(new Set([0]));
+
+  function toggleBpPerceel(i: number) {
+    setExpandedBpPercelen(prev => {
+      const next = new Set(prev);
+      if (next.has(i)) next.delete(i); else next.add(i);
+      return next;
+    });
+  }
+  function toggleActPerceel(i: number) {
+    setExpandedActPercelen(prev => {
+      const next = new Set(prev);
+      if (next.has(i)) next.delete(i); else next.add(i);
+      return next;
+    });
+  }
 
   const fetchBrief = useCallback(async (type: AanvraagType) => {
     if (!id) return;
@@ -159,6 +233,22 @@ export function AanvraagResultaat() {
   async function handleAanvraagTypeChange(type: AanvraagType) {
     setAanvraagType(type);
     await fetchBrief(type);
+  }
+
+  async function openBehandelrapport() {
+    setShowRapport(true);
+    if (rapport) return;
+    setLoadingRapport(true);
+    setErrorRapport('');
+    try {
+      const res = await fetch(`/api/aanvragen/${id}/behandelrapport`);
+      if (!res.ok) throw new Error();
+      setRapport(await res.json() as BehandelrapportData);
+    } catch {
+      setErrorRapport('Behandelrapport kon niet worden geladen.');
+    } finally {
+      setLoadingRapport(false);
+    }
   }
 
   async function kopieerBrief() {
@@ -234,6 +324,16 @@ export function AanvraagResultaat() {
               Concept
             </button>
           </div>
+
+          <button
+            onClick={openBehandelrapport}
+            className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-blue-700/50 bg-blue-900/30 text-blue-300 text-xs font-medium hover:bg-blue-900/50 transition-colors"
+          >
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            Behandelrapport
+          </button>
 
           {volledigheid && (
             <div className={`flex items-center gap-2 rounded-full px-4 py-2 border text-sm font-semibold ${
@@ -456,6 +556,288 @@ export function AanvraagResultaat() {
           </div>
         )}
       </section>
+
+      {/* Behandelrapport modal */}
+      {showRapport && (
+        <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/70 backdrop-blur-sm p-4">
+          <div className="relative w-full max-w-3xl bg-[#0a1628] border border-blue-800/50 rounded-2xl shadow-2xl my-8">
+
+            {/* Sticky header */}
+            <div className="sticky top-0 z-10 flex items-center justify-between px-6 py-4 bg-[#0a1628]/95 backdrop-blur border-b border-blue-800/50 rounded-t-2xl">
+              <div className="flex items-center gap-3">
+                <span className="flex items-center gap-1.5 bg-red-950/60 border border-red-700/60 text-red-300 text-xs font-bold px-2.5 py-1 rounded-md tracking-widest uppercase">
+                  <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
+                  </svg>
+                  INTERN
+                </span>
+                <h2 className="text-white font-bold text-sm">Behandelrapport</h2>
+                {rapport && (
+                  <span className="text-blue-500/60 text-xs hidden sm:block">
+                    {new Date(rapport.gegenereerd).toLocaleString('nl-NL')}
+                  </span>
+                )}
+              </div>
+              <div className="flex items-center gap-2">
+                <a
+                  href={`/api/aanvragen/${id}/behandelrapport/pdf`}
+                  download
+                  className="flex items-center gap-1.5 text-blue-400/70 hover:text-blue-200 transition-colors text-xs px-2 py-1 rounded"
+                  title="PDF downloaden"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                  <span className="hidden sm:inline">PDF</span>
+                </a>
+                <button
+                  onClick={() => setShowRapport(false)}
+                  className="text-blue-400/70 hover:text-white transition-colors p-1.5 rounded"
+                  aria-label="Sluiten"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <div className="px-6 py-6 space-y-6">
+
+              {loadingRapport && (
+                <div className="flex items-center gap-3 py-10 justify-center">
+                  <svg className="w-5 h-5 animate-spin text-blue-400" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                  </svg>
+                  <span className="text-blue-300 text-sm">Behandelrapport laden…</span>
+                </div>
+              )}
+
+              {errorRapport && (
+                <div className="bg-red-900/30 border border-red-700/50 text-red-300 rounded-lg px-4 py-3 text-sm">
+                  {errorRapport}
+                </div>
+              )}
+
+              {rapport && (
+                <>
+                  {/* Conclusiestrip — in één oogopslag */}
+                  {(() => {
+                    const info = PROCEDURE_LABELS[rapport.procedure.procedure] ?? PROCEDURE_LABELS['regulier'];
+                    return (
+                      <div className="grid grid-cols-3 gap-3">
+                        <div className="bg-blue-950/50 border border-blue-800/40 rounded-xl p-4">
+                          <p className="text-blue-400/60 text-xs mb-1.5 uppercase tracking-wide">Procedure</p>
+                          <span className={`inline-flex items-center rounded-md px-2 py-0.5 border text-xs font-semibold ${info.color}`}>
+                            {info.label}
+                          </span>
+                        </div>
+                        <div className="bg-blue-950/50 border border-blue-800/40 rounded-xl p-4">
+                          <p className="text-blue-400/60 text-xs mb-1.5 uppercase tracking-wide">Doorlooptijd</p>
+                          <p className="text-white text-sm font-semibold">{rapport.procedure.doorlooptijd}</p>
+                        </div>
+                        <div className="bg-blue-950/50 border border-blue-800/40 rounded-xl p-4">
+                          <p className="text-blue-400/60 text-xs mb-1.5 uppercase tracking-wide">Volledigheid</p>
+                          <span className={`inline-flex items-center gap-1.5 rounded-md px-2 py-0.5 border text-xs font-semibold ${
+                            rapport.volledigheid.volledig
+                              ? 'text-green-300 bg-green/10 border-green/30'
+                              : 'text-red-300 bg-red-900/30 border-red-700/50'
+                          }`}>
+                            <span className={`w-1.5 h-1.5 rounded-full ${rapport.volledigheid.volledig ? 'bg-green-400' : 'bg-red-400'}`} />
+                            {rapport.volledigheid.volledig ? 'Volledig' : `${rapport.volledigheid.aantalVerplichtOntbrekend} ontbreekt`}
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  })()}
+
+                  {/* BOPA waarschuwing */}
+                  {rapport.isBopa && (
+                    <div className="flex items-start gap-3 bg-orange-900/15 border border-orange-700/40 rounded-xl px-4 py-3">
+                      <svg className="w-4 h-4 text-orange flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                      </svg>
+                      <div>
+                        <p className="text-orange text-xs font-semibold mb-0.5">BOPA — Buitenplanse Omgevingsplanactiviteit</p>
+                        <p className="text-orange/70 text-xs">Activiteit wijkt af van het omgevingsplan. Beoordeel of reguliere of uitgebreide procedure van toepassing is (art. 16.62 / 16.65 Omgevingswet).</p>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Aandachtspunten */}
+                  {rapport.aandachtspunten.length > 0 && (
+                    <section>
+                      <h3 className="text-blue-300/80 text-xs font-semibold uppercase tracking-wider mb-3">Aandachtspunten</h3>
+                      <div className="bg-blue-950/40 border border-blue-800/40 rounded-xl divide-y divide-blue-800/30">
+                        {rapport.aandachtspunten.map((punt, i) => (
+                          <div key={i} className="flex items-start gap-3 px-4 py-3">
+                            <svg className="w-3.5 h-3.5 text-orange flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                            </svg>
+                            <p className="text-blue-100/80 text-xs leading-relaxed">{punt}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </section>
+                  )}
+
+                  {/* Bestemmingsplantoets */}
+                  {rapport.bestemmingsplanToets && rapport.bestemmingsplanToets.length > 0 && (
+                    <section>
+                      <h3 className="text-blue-300/80 text-xs font-semibold uppercase tracking-wider mb-3">Bestemmingsplantoets</h3>
+                      <div className="space-y-2">
+                        {rapport.bestemmingsplanToets.map((t, i) => {
+                          const open = expandedBpPercelen.has(i);
+                          const statusColor = !t.pdokBereikbaar
+                            ? 'text-yellow-400/70 bg-yellow-900/20 border-yellow-700/30'
+                            : t.afwijkingGesignaleerd
+                              ? 'text-orange-300 bg-orange-900/20 border-orange-700/40'
+                              : 'text-green-300/80 bg-green/10 border-green/30';
+                          const statusLabel = !t.pdokBereikbaar ? 'PDOK niet bereikbaar' : t.afwijkingGesignaleerd ? 'Afwijking gesignaleerd' : 'Past binnen plan';
+                          return (
+                            <div key={i} className="bg-blue-950/40 border border-blue-800/40 rounded-xl overflow-hidden">
+                              <button
+                                onClick={() => toggleBpPerceel(i)}
+                                className="w-full flex items-center justify-between px-4 py-3 hover:bg-blue-900/20 transition-colors text-left"
+                              >
+                                <div className="flex items-center gap-3">
+                                  <span className="text-blue-100 text-xs font-medium">{t.kadastraleAanduiding}</span>
+                                  {t.bestemmingsplan && (
+                                    <span className="text-blue-400/50 text-xs hidden sm:inline">{t.bestemmingsplan.naam}</span>
+                                  )}
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <span className={`text-xs rounded-full border px-2 py-0.5 ${statusColor}`}>{statusLabel}</span>
+                                  <svg className={`w-4 h-4 text-blue-400/50 transition-transform ${open ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                  </svg>
+                                </div>
+                              </button>
+                              {open && (
+                                <div className="border-t border-blue-800/30 px-4 py-3 space-y-2">
+                                  {t.bestemmingsplan && (
+                                    <p className="text-xs text-blue-400/60">vastgesteld {t.bestemmingsplan.vastgesteld} · {t.bestemmingsplan.imroCode}</p>
+                                  )}
+                                  {t.enkelbestemming.length > 0 && (
+                                    <div className="flex gap-2 flex-wrap">
+                                      <span className="text-blue-400/60 text-xs">Bestemming:</span>
+                                      {t.enkelbestemming.map((b, j) => <span key={j} className="text-xs text-blue-200/70 bg-blue-900/30 border border-blue-700/30 rounded px-1.5 py-0.5">{b}</span>)}
+                                    </div>
+                                  )}
+                                  {t.dubbelbestemming.length > 0 && (
+                                    <div className="flex gap-2 flex-wrap">
+                                      <span className="text-blue-400/60 text-xs">Dubbelbestemming:</span>
+                                      {t.dubbelbestemming.map((b, j) => <span key={j} className="text-xs text-blue-200/70 bg-blue-900/30 border border-blue-700/30 rounded px-1.5 py-0.5">{b}</span>)}
+                                    </div>
+                                  )}
+                                  {t.gebiedsaanduidingen.length > 0 && (
+                                    <div className="flex gap-2 flex-wrap">
+                                      <span className="text-blue-400/60 text-xs">Gebiedsaanduidingen:</span>
+                                      {t.gebiedsaanduidingen.map((g, j) => <span key={j} className="text-xs text-blue-200/70 bg-blue-900/30 border border-blue-700/30 rounded px-1.5 py-0.5">{g}</span>)}
+                                    </div>
+                                  )}
+                                  {t.afwijkingToelichting && (
+                                    <p className="text-xs text-orange-200/80 italic pt-1">{t.afwijkingToelichting}</p>
+                                  )}
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </section>
+                  )}
+
+                  {/* Activiteiten per perceel */}
+                  {rapport.activiteitenSamenvatting.length > 0 && (
+                    <section>
+                      <h3 className="text-blue-300/80 text-xs font-semibold uppercase tracking-wider mb-3">Activiteiten per perceel</h3>
+                      <div className="space-y-2">
+                        {rapport.activiteitenSamenvatting.map((a, i) => {
+                          const open = expandedActPercelen.has(i);
+                          return (
+                            <div key={i} className="bg-blue-950/40 border border-blue-800/40 rounded-xl overflow-hidden">
+                              <button
+                                onClick={() => toggleActPerceel(i)}
+                                className="w-full flex items-center justify-between px-4 py-3 hover:bg-blue-900/20 transition-colors text-left"
+                              >
+                                <span className="text-blue-100 text-xs font-medium">{a.kadastraleAanduiding}</span>
+                                <div className="flex items-center gap-2">
+                                  <span className="text-blue-400/50 text-xs">{a.activiteiten.length} activiteit{a.activiteiten.length !== 1 ? 'en' : ''}</span>
+                                  <svg className={`w-4 h-4 text-blue-400/50 transition-transform ${open ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                  </svg>
+                                </div>
+                              </button>
+                              {open && (
+                                <div className="border-t border-blue-800/30 px-4 py-3 space-y-2">
+                                  {a.activiteiten.length > 0 && (
+                                    <div className="flex flex-wrap gap-1.5">
+                                      {a.activiteiten.map((act, j) => (
+                                        <span key={j} className="text-xs bg-blue-900/40 border border-blue-700/40 text-blue-200 rounded-full px-2 py-0.5">{act}</span>
+                                      ))}
+                                    </div>
+                                  )}
+                                  {a.ingediendeDocs.length > 0 && (
+                                    <p className="text-xs text-blue-200/60"><span className="text-blue-400/60">Documenten: </span>{a.ingediendeDocs.join(', ')}</p>
+                                  )}
+                                  {a.bouwjaar && (
+                                    <p className="text-xs text-blue-200/60"><span className="text-blue-400/60">Bouwjaar: </span>{a.bouwjaar}</p>
+                                  )}
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </section>
+                  )}
+
+                  {/* Volledigheid detail */}
+                  <section>
+                    <h3 className="text-blue-300/80 text-xs font-semibold uppercase tracking-wider mb-3">Volledigheid</h3>
+                    <div className="bg-blue-950/40 border border-blue-800/40 rounded-xl px-4 py-3 space-y-1.5">
+                      <p className="text-blue-100/80 text-xs leading-relaxed">{rapport.volledigheid.samenvatting}</p>
+                    </div>
+                  </section>
+
+                  {/* Procedure toelichting */}
+                  <section>
+                    <h3 className="text-blue-300/80 text-xs font-semibold uppercase tracking-wider mb-3">Procedure toelichting</h3>
+                    <div className="bg-blue-950/40 border border-blue-800/40 rounded-xl px-4 py-3">
+                      <p className="text-blue-100/70 text-xs leading-relaxed">{rapport.procedure.toelichting}</p>
+                    </div>
+                  </section>
+
+                  {/* Bronnen + voorbehoud */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {rapport.bronnen.length > 0 && (
+                      <div>
+                        <h3 className="text-blue-300/80 text-xs font-semibold uppercase tracking-wider mb-2">Bronnen</h3>
+                        <div className="bg-blue-950/40 border border-blue-800/40 rounded-xl divide-y divide-blue-800/30">
+                          {rapport.bronnen.map((b, i) => (
+                            <div key={i} className="flex items-center justify-between px-3 py-2 text-xs">
+                              <span className="text-blue-200/70">{b.naam}</span>
+                              <span className="text-blue-400/50 ml-2 flex-shrink-0">{b.geraadpleegd}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    <div>
+                      <h3 className="text-blue-300/80 text-xs font-semibold uppercase tracking-wider mb-2">Voorbehoud</h3>
+                      <div className="bg-yellow-900/10 border border-yellow-700/30 rounded-xl px-3 py-3">
+                        <p className="text-yellow-200/60 text-xs leading-relaxed">{rapport.voorbehoud}</p>
+                      </div>
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Privacy-footer */}
       <div className="flex items-start gap-3 bg-green/5 border border-green/20 rounded-xl px-4 py-3">

@@ -373,6 +373,32 @@ Behandelrapport → PDF, geen RO-flow branding
 
 ---
 
+## Wat is gebouwd (status 2026-05-05)
+
+```
+✅ Monorepo structuur
+✅ Privacy module           sanitizeForAI, restoreTemplateFields
+✅ Azure PostgreSQL          live
+✅ Azure Document Intelligence  gekoppeld
+✅ Azure Blob Storage        gekoppeld, PDFs gaan naar Blob
+✅ Groq AI provider
+✅ Core logica               checkCompleteness v4, dsoParser, determineProcedure
+✅ Locatie resolver          kadastraal/adres/projectnaam → PDOK → coördinaten
+✅ Bestemmingsplantoets      PDOK WFS parallel per perceel + Groq indicatief
+✅ API endpoints             alle routes werkend
+✅ Brief generator           5 varianten, termijnberekening, sanitizeForAI
+✅ Frontend                  landingspagina, aanvraagpagina (NAW-kaart, percelen,
+                             referentie aanvraagnummer/datum), resultaatpagina
+                             (formeel/concept toggle, termijnen, variant-badge A-E)
+✅ Behandelrapport pop-up    intern modal, niet voor aanvrager, per perceel
+⬜ Download functie (Word/PDF)   nog te bouwen
+⬜ Auth systeem              fase 2
+⬜ Zaaksysteem koppeling     fase 2
+⬜ Templafy koppeling        fase 3
+```
+
+---
+
 ## Juridische voorbehouden — altijd verplicht in AI output
 
 ```

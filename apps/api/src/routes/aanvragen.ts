@@ -40,6 +40,7 @@ function toActiviteit(type: string | null | undefined): Activiteit {
 }
 import { uploadPDF } from '../azure/blobStorage.js';
 import { extracteerUitPDF } from '../azure/documentIntelligence.js';
+import { streamBehandelrapportPdf } from '../pdf/behandelrapportPdf.js';
 
 export const aanvragenRouter: ReturnType<typeof Router> = Router();
 
@@ -603,6 +604,186 @@ aanvragenRouter.post('/:id/ontvangstbevestiging', async (req, res, next) => {
         : completenessResultaat.volledig ? 'B'
         : procedureResultaat.procedure !== 'uitgebreid' ? 'C' : 'D',
     });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// GET /api/aanvragen/:id/behandelrapport — intern rapport voor de behandelaar
+// Combineert aanvraagdata, volledigheidscheck, bestemmingsplantoets en procedure
+// NOOIT NAW-gegevens — uitsluitend inhoudelijke data
+aanvragenRouter.get('/:id/behandelrapport', async (req, res, next) => {
+  try {
+    const aanvraag = await aanvraagRepository.findById(req.params.id);
+    if (!aanvraag) {
+      res.status(404).json({ error: 'Aanvraag niet gevonden' });
+      return;
+    }
+
+    const opgeslagenPercelen = aanvraag.percelen as PerceelInput[] | null;
+    const perceelInputs: PerceelInput[] = opgeslagenPercelen?.length
+      ? opgeslagenPercelen
+      : [{
+          id: aanvraag.id,
+          kadastraleAanduiding: 'Onbekend',
+          activiteiten: [toActiviteit(aanvraag.activiteitType)],
+          ingediendeDocs: [],
+          bouwjaar: null,
+        }];
+
+    const aanvraagDate = parseDutchDate(aanvraag.aanvraagdatum) ?? new Date(aanvraag.createdAt);
+    const procedureResultaat = bepaalProcedure(aanvraag.activiteitType);
+
+    // Volledigheidscheck + termijnen parallel
+    const completenessResultaat = checkCompleteness(perceelInputs);
+    const termijnen = berekenTermijnen(
+      aanvraagDate,
+      procedureResultaat.procedure,
+      completenessResultaat.volledig
+    );
+
+    // Opgeslagen analyserapport (bestemmingsplantoets + aandachtspunten) uit vorige volledigheidscheck
+    const opgeslagenRapport = aanvraag.analyserapport as {
+      bestemmingsplanToets?: BestemmingsplanToetsResultaat[];
+      isBopa?: boolean;
+      heeftWaterstaats?: boolean;
+      aandachtspunten?: string[];
+      tijdstip?: string;
+    } | null;
+
+    // Activiteiten samenvatting per perceel
+    const activiteitenSamenvatting = perceelInputs.map((p) => ({
+      kadastraleAanduiding: p.kadastraleAanduiding,
+      activiteiten: p.activiteiten,
+      ingediendeDocs: p.ingediendeDocs.length,
+      bouwjaar: p.bouwjaar,
+    }));
+
+    // Bronnen
+    const geraadpleegdOp = new Date().toLocaleDateString('nl-NL', {
+      day: 'numeric', month: 'long', year: 'numeric',
+    });
+    const bronnen = [
+      { naam: 'PDOK Ruimtelijke Plannen (WFS)', url: 'https://service.pdok.nl/rws/ruimtelijkeplannen/wfs/v1_0', geraadpleegd: geraadpleegdOp },
+      { naam: 'PDOK Locatieserver', url: 'https://api.pdok.nl/bzk/locatieserver/search/v3_1', geraadpleegd: geraadpleegdOp },
+    ];
+    if (!opgeslagenRapport?.bestemmingsplanToets?.length) {
+      bronnen[0] = { ...bronnen[0], geraadpleegd: 'Niet geraadpleegd — voer eerst een volledigheidscheck uit' };
+    }
+
+    res.json({
+      intern: true,
+      gegenereerd: new Date().toISOString(),
+      aanvraag: {
+        id: aanvraag.id,
+        gemeente: aanvraag.gemeente,
+        activiteitType: aanvraag.activiteitType,
+        activiteitOmschrijving: aanvraag.activiteitOmschrijving,
+        aanvraagnummer: aanvraag.aanvraagnummer,
+        aanvraagdatum: aanvraag.aanvraagdatum,
+        status: aanvraag.status,
+      },
+      procedure: {
+        ...procedureResultaat,
+        termijnen,
+      },
+      volledigheid: {
+        volledig: completenessResultaat.volledig,
+        aantalVerplichtOntbrekend: completenessResultaat.aantalVerplichtOntbrekendTotaal,
+        percelen: completenessResultaat.percelen,
+        samenvatting: completenessResultaat.samenvatting,
+      },
+      activiteitenSamenvatting,
+      bestemmingsplanToets: opgeslagenRapport?.bestemmingsplanToets ?? null,
+      isBopa: opgeslagenRapport?.isBopa ?? (toActiviteit(aanvraag.activiteitType) === 'bopa'),
+      aandachtspunten: opgeslagenRapport?.aandachtspunten ?? [],
+      bronnen,
+      voorbehoud:
+        'Voorlopige inschatting op basis van ingediende stukken. Kan wijzigen na inhoudelijke beoordeling. ' +
+        'De behandelaar blijft verantwoordelijk voor het definitieve oordeel. ' +
+        'INTERN gebruik — niet voor aanvrager bestemd.',
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// GET /api/aanvragen/:id/behandelrapport/pdf — PDF-versie van het behandelrapport
+// Zelfde data als de JSON endpoint, gestreamd als PDF via pdfkit
+aanvragenRouter.get('/:id/behandelrapport/pdf', async (req, res, next) => {
+  try {
+    const aanvraag = await aanvraagRepository.findById(req.params.id);
+    if (!aanvraag) {
+      res.status(404).json({ error: 'Aanvraag niet gevonden' });
+      return;
+    }
+
+    const opgeslagenPercelen = aanvraag.percelen as PerceelInput[] | null;
+    const perceelInputs: PerceelInput[] = opgeslagenPercelen?.length
+      ? opgeslagenPercelen
+      : [{
+          id: aanvraag.id,
+          kadastraleAanduiding: 'Onbekend',
+          activiteiten: [toActiviteit(aanvraag.activiteitType)],
+          ingediendeDocs: [],
+          bouwjaar: null,
+        }];
+
+    const procedureResultaat = bepaalProcedure(aanvraag.activiteitType);
+    const completenessResultaat = checkCompleteness(perceelInputs);
+
+    const opgeslagenRapport = aanvraag.analyserapport as {
+      bestemmingsplanToets?: BestemmingsplanToetsResultaat[];
+      isBopa?: boolean;
+      aandachtspunten?: string[];
+    } | null;
+
+    const activiteitenSamenvatting = perceelInputs.map((p) => ({
+      kadastraleAanduiding: p.kadastraleAanduiding,
+      activiteiten: p.activiteiten,
+      ingediendeDocs: p.ingediendeDocs.length,
+      bouwjaar: p.bouwjaar,
+    }));
+
+    const geraadpleegdOp = new Date().toLocaleDateString('nl-NL', {
+      day: 'numeric', month: 'long', year: 'numeric',
+    });
+    const bronnen = [
+      { naam: 'PDOK Ruimtelijke Plannen (WFS)', geraadpleegd: geraadpleegdOp },
+      { naam: 'PDOK Locatieserver', geraadpleegd: geraadpleegdOp },
+    ];
+
+    streamBehandelrapportPdf({
+      gegenereerd: new Date().toISOString(),
+      aanvraag: {
+        id: aanvraag.id,
+        gemeente: aanvraag.gemeente,
+        activiteitType: aanvraag.activiteitType,
+        activiteitOmschrijving: aanvraag.activiteitOmschrijving,
+        aanvraagnummer: aanvraag.aanvraagnummer,
+        aanvraagdatum: aanvraag.aanvraagdatum,
+        status: aanvraag.status,
+      },
+      procedure: {
+        procedure: procedureResultaat.procedure,
+        doorlooptijd: procedureResultaat.doorlooptijd,
+        toelichting: procedureResultaat.toelichting,
+      },
+      volledigheid: {
+        volledig: completenessResultaat.volledig,
+        aantalVerplichtOntbrekend: completenessResultaat.aantalVerplichtOntbrekendTotaal,
+        samenvatting: completenessResultaat.samenvatting,
+      },
+      activiteitenSamenvatting,
+      bestemmingsplanToets: opgeslagenRapport?.bestemmingsplanToets ?? null,
+      isBopa: opgeslagenRapport?.isBopa ?? (toActiviteit(aanvraag.activiteitType) === 'bopa'),
+      aandachtspunten: opgeslagenRapport?.aandachtspunten ?? [],
+      bronnen,
+      voorbehoud:
+        'Voorlopige inschatting op basis van ingediende stukken. Kan wijzigen na inhoudelijke beoordeling. ' +
+        'De behandelaar blijft verantwoordelijk voor het definitieve oordeel. ' +
+        'INTERN gebruik — niet voor aanvrager bestemd.',
+    }, res);
   } catch (err) {
     next(err);
   }
