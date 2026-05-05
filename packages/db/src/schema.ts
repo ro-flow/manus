@@ -31,6 +31,7 @@ export const aanvragen = pgTable(
     aanvraagdatum: varchar('aanvraagdatum', { length: 50 }),
     status: aanvraagStatusEnum('status').default('concept').notNull(),
     percelen: jsonb('percelen'),
+    analyserapport: jsonb('analyserapport'),
     pdfBlobUrl: text('pdf_blob_url'),
     createdAt: timestamp('created_at').defaultNow().notNull(),
     updatedAt: timestamp('updated_at').defaultNow().notNull(),

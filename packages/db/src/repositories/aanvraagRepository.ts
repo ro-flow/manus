@@ -47,6 +47,15 @@ export const aanvraagRepository = {
       .where(eq(aanvragen.id, id));
   },
 
+  async updateAnalyserapport(id: string, analyserapport: unknown): Promise<void> {
+    const db = getDb();
+    await db
+      .update(aanvragen)
+      // analyserapport is jsonb — cast via unknown zodat Drizzle het accepteert
+      .set({ analyserapport: analyserapport as never, updatedAt: new Date() })
+      .where(eq(aanvragen.id, id));
+  },
+
   async updateStatus(id: string, status: Aanvraag['status']): Promise<void> {
     const db = getDb();
     await db

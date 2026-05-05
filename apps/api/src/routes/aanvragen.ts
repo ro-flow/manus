@@ -21,10 +21,12 @@ import {
   buildBriefData,
   detecteerLocaties,
   resolveAlleLocaties,
+  toetsBestemmingsplan,
   type PerceelInput,
   type Activiteit,
   type IngediendDoc,
   type ResolvedLocatie,
+  type BestemmingsplanToetsResultaat,
 } from '@ro-flow/core';
 
 const GELDIGE_ACTIVITEITEN = new Set<Activiteit>([
@@ -350,8 +352,33 @@ aanvragenRouter.post('/:id/pdf', upload.single('pdf'), async (req, res, next) =>
   }
 });
 
-// POST /api/aanvragen/:id/volledigheidscheck — ontbrekende stukken bepalen
-// Deterministisch — geen AI, directe response
+// Reconstrueer ResolvedLocatie[] uit opgeslagen percelen (hebben extra lat/lon/rd velden)
+function percelenNaarLocaties(percelen: PerceelInput[]): ResolvedLocatie[] {
+  const resultaat: ResolvedLocatie[] = [];
+  for (const p of percelen) {
+    const extra = p as PerceelInput & {
+      lat?: number; lon?: number;
+      rd_x?: number; rd_y?: number;
+      locatieMethode?: string;
+      locatieBetrouwbaarheid?: 'hoog' | 'middel' | 'laag';
+    };
+    if (!extra.lat || extra.lat === 0) continue;
+    resultaat.push({
+      invoer: { type: 'kadastraal', kadastraleGemeente: '', sectie: '', perceelnummer: '', origineel: p.kadastraleAanduiding },
+      lat: extra.lat,
+      lon: extra.lon ?? 0,
+      rd_x: extra.rd_x,
+      rd_y: extra.rd_y,
+      kadastraleAanduiding: p.kadastraleAanduiding,
+      betrouwbaarheid: extra.locatieBetrouwbaarheid ?? 'laag',
+      methode: extra.locatieMethode ?? 'opgeslagen',
+    });
+  }
+  return resultaat;
+}
+
+// POST /api/aanvragen/:id/volledigheidscheck
+// checkCompleteness + PDOK bestemmingsplantoets parallel uitvoeren
 aanvragenRouter.post('/:id/volledigheidscheck', async (req, res, next) => {
   try {
     const aanvraag = await aanvraagRepository.findById(req.params.id);
@@ -370,9 +397,64 @@ aanvragenRouter.post('/:id/volledigheidscheck', async (req, res, next) => {
           ingediendeDocs: [],
           bouwjaar: null,
         }];
-    const completenessResultaat = checkCompleteness(perceelInputs);
 
-    res.json(completenessResultaat);
+    const resolvedLocaties = percelenNaarLocaties(perceelInputs);
+
+    // Parallel: volledigheidscheck + PDOK bestemmingsplantoets
+    const [completenessResultaat, bestemmingsplanResultaten] = await Promise.all([
+      Promise.resolve(checkCompleteness(perceelInputs)),
+      toetsBestemmingsplan(resolvedLocaties),
+    ]);
+
+    // ── BOPA detectie ─────────────────────────────────────────────────────────
+    // Op basis van activiteitType of afwijking gesignaleerd in PDOK toets
+    const isBopa =
+      toActiviteit(aanvraag.activiteitType) === 'bopa' ||
+      bestemmingsplanResultaten.some((t) => t.afwijkingGesignaleerd);
+
+    const bopaVereisten = isBopa
+      ? [
+          { type: 'ruimtelijke_onderbouwing', naam: 'Ruimtelijke onderbouwing', grondslag: 'Art. 5.1 lid 2 Omgevingswet (BOPA)' },
+          { type: 'motivering_afwijking', naam: 'Motivering afwijking omgevingsplan', grondslag: 'Art. 8.0a Omgevingsbesluit' },
+        ]
+      : [];
+
+    // ── Waterstaatsactiviteit detectie ────────────────────────────────────────
+    const waterKeywords = ['waterstaats', 'waterkering', 'watergang', 'waterbeheersing', 'rivier', 'kanaal'];
+    const heeftWaterstaats = bestemmingsplanResultaten.some((t) =>
+      t.gebiedsaanduidingen.some((g) =>
+        waterKeywords.some((kw) => g.toLowerCase().includes(kw))
+      )
+    );
+
+    const aandachtspunten: string[] = [];
+    if (heeftWaterstaats) {
+      aandachtspunten.push('Waterstaatsactiviteit gesignaleerd op basis van gebiedsaanduidingen. Controleer of een watervergunning vereist is (Waterschapswet / Omgevingswet).');
+    }
+    if (isBopa) {
+      aandachtspunten.push('Activiteit past mogelijk niet binnen het omgevingsplan (BOPA). Uitgebreide procedure kan van toepassing zijn.');
+    }
+
+    // ── Analyserapport opslaan in database ────────────────────────────────────
+    const analyserapport = {
+      tijdstip: new Date().toISOString(),
+      bestemmingsplanToets: bestemmingsplanResultaten,
+      isBopa,
+      heeftWaterstaats,
+      aandachtspunten,
+    };
+    // Fire-and-forget — analyse is niet blokkerend
+    aanvraagRepository.updateAnalyserapport(aanvraag.id, analyserapport).catch((err: unknown) => {
+      console.warn('[analyserapport] Opslaan mislukt:', err);
+    });
+
+    res.json({
+      ...completenessResultaat,
+      bestemmingsplanToets: bestemmingsplanResultaten as BestemmingsplanToetsResultaat[],
+      bopaVereisten,
+      aandachtspunten,
+      isBopa,
+    });
   } catch (err) {
     next(err);
   }
