@@ -41,6 +41,8 @@ function toActiviteit(type: string | null | undefined): Activiteit {
 import { uploadPDF } from '../azure/blobStorage.js';
 import { extracteerUitPDF } from '../azure/documentIntelligence.js';
 import { streamBehandelrapportPdf } from '../pdf/behandelrapportPdf.js';
+import { generateBriefDocx } from '../export/generateDocx.js';
+import type { Aanvraag } from '@ro-flow/db';
 
 export const aanvragenRouter: ReturnType<typeof Router> = Router();
 
@@ -465,145 +467,156 @@ const OntvangstbevestigingBodySchema = z.object({
   aanvraagType: z.enum(['formeel', 'concept']).default('formeel'),
 });
 
+interface BriefResultaat {
+  briefVolledig: string;
+  procedure: ReturnType<typeof bepaalProcedure>;
+  termijnen: ReturnType<typeof berekenTermijnen>;
+  variant: 'A' | 'B' | 'C' | 'D' | 'E';
+  volledigheid: { volledig: boolean; aantalOntbrekend: number };
+}
+
+async function bouwBrief(aanvraag: Aanvraag, aanvraagType: 'formeel' | 'concept'): Promise<BriefResultaat> {
+  const opgeslagenPercelen = aanvraag.percelen as PerceelInput[] | null;
+  const perceelInputs: PerceelInput[] = opgeslagenPercelen?.length
+    ? opgeslagenPercelen
+    : [{
+        id: aanvraag.id,
+        kadastraleAanduiding: 'Onbekend',
+        activiteiten: [toActiviteit(aanvraag.activiteitType)],
+        ingediendeDocs: [],
+        bouwjaar: null,
+      }];
+
+  const completenessResultaat = checkCompleteness(perceelInputs);
+  const briefData = buildBriefData(completenessResultaat);
+
+  const percelenMetNummer = perceelInputs.filter(p => p.kadastraleAanduiding !== 'Onbekend');
+  const locatieOmschrijving = percelenMetNummer.length > 0
+    ? percelenMetNummer.length === 1
+      ? `perceel ${percelenMetNummer[0].kadastraleAanduiding}`
+      : `de percelen: ${percelenMetNummer.map(p => p.kadastraleAanduiding).join(', ')}`
+    : undefined;
+
+  const aanvraagDate = parseDutchDate(aanvraag.aanvraagdatum) ?? new Date(aanvraag.createdAt);
+  const procedureResultaat = bepaalProcedure(aanvraag.activiteitType);
+  const termijnen = berekenTermijnen(aanvraagDate, procedureResultaat.procedure, completenessResultaat.volledig);
+
+  const rawContext = {
+    gemeente: aanvraag.gemeente,
+    gebiedstype: aanvraag.gebiedstype ?? undefined,
+    activiteitType: aanvraag.activiteitType ?? undefined,
+    activiteitOmschrijving: aanvraag.activiteitOmschrijving ?? undefined,
+  };
+
+  let sanitizedContext;
+  try {
+    sanitizedContext = sanitizeForAI(rawContext);
+  } catch (privacyErr) {
+    if (privacyErr instanceof PrivacyViolationError) {
+      await aiLogRepository.log({
+        aanvraagId: aanvraag.id,
+        provider: 'none',
+        sanitizedPayload: rawContext,
+        privacyBlocked: true,
+        errorMessage: privacyErr instanceof Error ? privacyErr.message : String(privacyErr),
+      });
+    }
+    throw privacyErr;
+  }
+
+  const { systemPrompt, userPrompt } = buildOntvangstbevestigingPrompt({
+    gemeente: sanitizedContext.gemeente ?? aanvraag.gemeente,
+    zaaknummer: aanvraag.aanvraagnummer ?? aanvraag.id,
+    ontvangstdatum: termijnen.ontvangstdatum,
+    activiteitType: sanitizedContext.activiteitType,
+    activiteitOmschrijving: sanitizedContext.activiteitOmschrijving,
+    gebiedstype: sanitizedContext.gebiedstype,
+    locatieOmschrijving,
+    aanvraagType,
+    procedureType: procedureResultaat.procedure,
+    doorlooptijd: procedureResultaat.doorlooptijd,
+    volledig: completenessResultaat.volledig,
+    beslistermijnDatum: termijnen.beslistermijnDatum,
+    aanvuldeadlineDatum: termijnen.aanvuldeadlineDatum,
+    briefData,
+  });
+
+  const ai = createAIClient();
+  const start = Date.now();
+  const briefMetPlaceholders = await ai.generateText(systemPrompt, userPrompt);
+
+  await aiLogRepository.log({
+    aanvraagId: aanvraag.id,
+    provider: ai.provider,
+    model: ai.model,
+    sanitizedPayload: { context: sanitizedContext, briefData, aanvraagType },
+    aiResponse: briefMetPlaceholders,
+    durationMs: String(Date.now() - start),
+  });
+
+  const pii = await aanvraagRepository.findPiiByAanvraagId(aanvraag.id);
+  const gemeenteNaam = aanvraag.gemeente.replace(/^gemeente\s+/i, '');
+  const briefVolledig = restoreTemplateFields(
+    briefMetPlaceholders,
+    {
+      naam: pii?.naam ?? undefined,
+      email: pii?.email ?? undefined,
+      telefoon: pii?.telefoon ?? undefined,
+      adres: pii?.adres ?? undefined,
+      postcode: pii?.postcode ?? undefined,
+      woonplaats: pii?.woonplaats ?? undefined,
+    },
+    { afdelingNaam: `Team Omgevingsvergunningen ${gemeenteNaam}` }
+  );
+
+  const variant: 'A' | 'B' | 'C' | 'D' | 'E' =
+    aanvraagType === 'concept' ? 'E'
+    : completenessResultaat.volledig && procedureResultaat.procedure !== 'uitgebreid' ? 'A'
+    : completenessResultaat.volledig ? 'B'
+    : procedureResultaat.procedure !== 'uitgebreid' ? 'C' : 'D';
+
+  return {
+    briefVolledig,
+    procedure: procedureResultaat,
+    termijnen,
+    variant,
+    volledigheid: {
+      volledig: completenessResultaat.volledig,
+      aantalOntbrekend: completenessResultaat.aantalVerplichtOntbrekendTotaal,
+    },
+  };
+}
+
 // POST /api/aanvragen/:id/ontvangstbevestiging — brief genereren (5 varianten)
 // Variant A/B: volledig · Variant C/D: onvolledig · Variant E: concept
 // AI genereert met placeholders; backend vult NAW in via restoreTemplateFields
 aanvragenRouter.post('/:id/ontvangstbevestiging', async (req, res, next) => {
   try {
     const aanvraag = await aanvraagRepository.findById(req.params.id);
-    if (!aanvraag) {
-      res.status(404).json({ error: 'Aanvraag niet gevonden' });
-      return;
-    }
-
+    if (!aanvraag) { res.status(404).json({ error: 'Aanvraag niet gevonden' }); return; }
     const { aanvraagType } = OntvangstbevestigingBodySchema.parse(req.body);
+    const { briefVolledig, procedure, termijnen, variant, volledigheid } = await bouwBrief(aanvraag, aanvraagType);
+    res.json({ brief: briefVolledig, procedure, termijnen, variant, volledigheid });
+  } catch (err) {
+    next(err);
+  }
+});
 
-    // Stap 1 — deterministische volledigheidscheck
-    // Gebruik opgeslagen percelen (DSO) of maak één perceel op basis van activiteitType (PDF)
-    const opgeslagenPercelen = aanvraag.percelen as PerceelInput[] | null;
-    const perceelInputs: PerceelInput[] = opgeslagenPercelen?.length
-      ? opgeslagenPercelen
-      : [{
-          id: aanvraag.id,
-          kadastraleAanduiding: 'Onbekend',
-          activiteiten: [toActiviteit(aanvraag.activiteitType)],
-          ingediendeDocs: [],
-          bouwjaar: null,
-        }];
-    const completenessResultaat = checkCompleteness(perceelInputs);
-    const briefData = buildBriefData(completenessResultaat);
+// GET /api/aanvragen/:id/brief/download?aanvraagType=formeel|concept — brief als .docx
+aanvragenRouter.get('/:id/brief/download', async (req, res, next) => {
+  try {
+    const aanvraag = await aanvraagRepository.findById(req.params.id);
+    if (!aanvraag) { res.status(404).json({ error: 'Aanvraag niet gevonden' }); return; }
 
-    // Locatieomschrijving: gebruik kadastrale nummers, niet het adres van de aanvrager
-    // "Onbekend" percelen worden overgeslagen; fallback op locatieContext uit aanvraag
-    const percelenMetNummer = perceelInputs.filter(p => p.kadastraleAanduiding !== 'Onbekend');
-    const locatieOmschrijving = percelenMetNummer.length > 0
-      ? percelenMetNummer.length === 1
-        ? `perceel ${percelenMetNummer[0].kadastraleAanduiding}`
-        : `de percelen: ${percelenMetNummer.map(p => p.kadastraleAanduiding).join(', ')}`
-      : undefined;
+    const aanvraagType = req.query['aanvraagType'] === 'concept' ? 'concept' : 'formeel';
+    const { briefVolledig } = await bouwBrief(aanvraag, aanvraagType);
 
-    // Stap 2 — procedure + termijnen berekenen
-    // Gebruik aanvraagdatum uit PDF als beschikbaar, anders de DB-aanmaakdatum
-    const aanvraagDate = parseDutchDate(aanvraag.aanvraagdatum) ?? new Date(aanvraag.createdAt);
-    const procedureResultaat = bepaalProcedure(aanvraag.activiteitType);
-    const termijnen = berekenTermijnen(
-      aanvraagDate,
-      procedureResultaat.procedure,
-      completenessResultaat.volledig
-    );
+    const buffer = await generateBriefDocx(briefVolledig, aanvraag.gemeente, aanvraag.aanvraagnummer);
+    const bestandsnaam = `brief-${aanvraag.gemeente.replace(/[^a-z0-9]/gi, '-').toLowerCase()}-${aanvraag.id.slice(0, 8)}.docx`;
 
-    // Stap 3 — privacy-check op aanvraagcontext
-    const rawContext = {
-      gemeente: aanvraag.gemeente,
-      gebiedstype: aanvraag.gebiedstype ?? undefined,
-      activiteitType: aanvraag.activiteitType ?? undefined,
-      activiteitOmschrijving: aanvraag.activiteitOmschrijving ?? undefined,
-    };
-
-    let sanitizedContext;
-    try {
-      sanitizedContext = sanitizeForAI(rawContext);
-    } catch (privacyErr) {
-      if (privacyErr instanceof PrivacyViolationError) {
-        await aiLogRepository.log({
-          aanvraagId: aanvraag.id,
-          provider: 'none',
-          sanitizedPayload: rawContext,
-          privacyBlocked: true,
-          errorMessage: privacyErr instanceof Error ? privacyErr.message : String(privacyErr),
-        });
-      }
-      throw privacyErr;
-    }
-
-    // Stap 4 — prompt bouwen
-    const { systemPrompt, userPrompt } = buildOntvangstbevestigingPrompt({
-      gemeente: sanitizedContext.gemeente ?? aanvraag.gemeente,
-      zaaknummer: aanvraag.aanvraagnummer ?? aanvraag.id,
-      ontvangstdatum: termijnen.ontvangstdatum,
-      activiteitType: sanitizedContext.activiteitType,
-      activiteitOmschrijving: sanitizedContext.activiteitOmschrijving,
-      gebiedstype: sanitizedContext.gebiedstype,
-      locatieOmschrijving,
-      aanvraagType,
-      procedureType: procedureResultaat.procedure,
-      doorlooptijd: procedureResultaat.doorlooptijd,
-      volledig: completenessResultaat.volledig,
-      beslistermijnDatum: termijnen.beslistermijnDatum,
-      aanvuldeadlineDatum: termijnen.aanvuldeadlineDatum,
-      briefData,
-    });
-
-    // Stap 5 — AI aanroep
-    const ai = createAIClient();
-    const start = Date.now();
-    const briefMetPlaceholders = await ai.generateText(systemPrompt, userPrompt);
-    const durationMs = String(Date.now() - start);
-
-    await aiLogRepository.log({
-      aanvraagId: aanvraag.id,
-      provider: ai.provider,
-      model: ai.model,
-      sanitizedPayload: { context: sanitizedContext, briefData, aanvraagType },
-      aiResponse: briefMetPlaceholders,
-      durationMs,
-    });
-
-    // Stap 6 — NAW restore binnen Azure
-    const pii = await aanvraagRepository.findPiiByAanvraagId(aanvraag.id);
-    console.log(`[brief] PII voor ${aanvraag.id}:`, pii
-      ? { naam: pii.naam, heeftAdres: !!pii.adres, heeftEmail: !!pii.email }
-      : 'geen PII gevonden');
-
-    // Gemeentenaam zonder prefix "Gemeente " voor gebruik als afdelingnaam
-    const gemeenteNaam = aanvraag.gemeente.replace(/^gemeente\s+/i, '');
-
-    const briefVolledig = restoreTemplateFields(
-      briefMetPlaceholders,
-      {
-        naam: pii?.naam ?? undefined,
-        email: pii?.email ?? undefined,
-        telefoon: pii?.telefoon ?? undefined,
-        adres: pii?.adres ?? undefined,
-        postcode: pii?.postcode ?? undefined,
-        woonplaats: pii?.woonplaats ?? undefined,
-      },
-      { afdelingNaam: `Team Omgevingsvergunningen ${gemeenteNaam}` }
-    );
-
-    res.json({
-      brief: briefVolledig,
-      procedure: procedureResultaat,
-      volledigheid: {
-        volledig: completenessResultaat.volledig,
-        aantalOntbrekend: completenessResultaat.aantalVerplichtOntbrekendTotaal,
-      },
-      termijnen,
-      variant: aanvraagType === 'concept' ? 'E'
-        : completenessResultaat.volledig && procedureResultaat.procedure !== 'uitgebreid' ? 'A'
-        : completenessResultaat.volledig ? 'B'
-        : procedureResultaat.procedure !== 'uitgebreid' ? 'C' : 'D',
-    });
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
+    res.setHeader('Content-Disposition', `attachment; filename="${bestandsnaam}"`);
+    res.send(buffer);
   } catch (err) {
     next(err);
   }
