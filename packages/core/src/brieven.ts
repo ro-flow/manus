@@ -40,6 +40,8 @@ export interface OntvangstbevestigingContext {
   activiteitType?: string | null;
   activiteitOmschrijving?: string | null;
   gebiedstype?: string | null;
+  // Locatieomschrijving op basis van percelen (niet het adres van de aanvrager)
+  locatieOmschrijving?: string;
   aanvraagType: 'formeel' | 'concept';
   procedureType: string;
   doorlooptijd: string;
@@ -52,6 +54,14 @@ export interface OntvangstbevestigingContext {
 // ── Variant bepalen ──────────────────────────────────────────────────────────
 
 type BriefVariant = 'A' | 'B' | 'C' | 'D' | 'E';
+
+const ONDERWERP: Record<BriefVariant, string> = {
+  A: 'Ontvangstbevestiging aanvraag omgevingsvergunning',
+  B: 'Ontvangstbevestiging aanvraag omgevingsvergunning',
+  C: 'Ontvangstbevestiging en verzoek om aanvullende gegevens — aanvraag omgevingsvergunning',
+  D: 'Ontvangstbevestiging en verzoek om aanvullende gegevens — aanvraag omgevingsvergunning',
+  E: 'Ontvangst conceptaanvraag omgevingsvergunning',
+};
 
 function bepaalVariant(ctx: OntvangstbevestigingContext): BriefVariant {
   if (ctx.aanvraagType === 'concept') return 'E';
@@ -141,18 +151,21 @@ export function buildOntvangstbevestigingPrompt(ctx: OntvangstbevestigingContext
   userPrompt: string;
 } {
   const variant = bepaalVariant(ctx);
+  const onderwerp = ONDERWERP[variant];
 
   const systemPrompt =
-    `Je bent een gemeentelijk behandelaar omgevingsvergunningen bij de gemeente ${ctx.gemeente}. ` +
+    `Je bent een gemeentelijk behandelaar omgevingsvergunningen bij ${ctx.gemeente}. ` +
     `Schrijf een formele ontvangstbevestiging in goed Nederlands op basis van de aangeleverde gegevens.\n\n` +
     `VERPLICHTE REGELS:\n` +
+    `- Begin de brief ALTIJD met "Onderwerp: ${onderwerp}"\n` +
     `- Gebruik [AANVRAGER] voor de naam van de aanvrager — nooit een echte naam\n` +
     `- Gebruik [ADRES_VERWIJDERD] voor het locatieadres van de activiteit\n` +
     `- Gebruik [AFDELING_NAAM] voor de naam van de afdeling — nooit "Afdeling Vergunningen" hardcoderen\n` +
     `- Noem nooit e-mailadressen, telefoonnummers of andere persoonsgegevens\n` +
+    `- Bij ontbrekende stukken: vermeld ALTIJD het kadastraal nummer van het bijbehorende perceel\n` +
     `- Schrijf professioneel, duidelijk en toegankelijk\n` +
     `- Verwijs naar wetsartikelen zoals aangeleverd\n` +
-    `- Sluit af met: Met vriendelijke groet,\n[AFDELING_NAAM]\nGemeente ${ctx.gemeente}`;
+    `- Sluit af met: Met vriendelijke groet,\n[AFDELING_NAAM]\n${ctx.gemeente}`;
 
   const proc = procedureTekst(ctx, variant);
   const volledig = volledigheidsPassage(ctx, variant);
@@ -164,9 +177,11 @@ export function buildOntvangstbevestigingPrompt(ctx: OntvangstbevestigingContext
   const userPrompt =
     `Schrijf een volledige ontvangstbevestiging (variant ${variant}) met de volgende gegevens:\n\n` +
 
+    `ONDERWERP: ${onderwerp}\n\n` +
+
     `AANVRAAGGEGEVENS:\n` +
     `- Aanvrager: [AANVRAGER]\n` +
-    `- Locatie: [ADRES_VERWIJDERD]\n` +
+    `- Locatie: ${ctx.locatieOmschrijving ?? 'zie bijlagen'}\n` +
     `- Zaaknummer: ${ctx.zaaknummer}\n` +
     `- Ontvangstdatum: ${ctx.ontvangstdatum}\n` +
     `- Activiteit: ${ctx.activiteitType ?? 'niet opgegeven'}\n` +

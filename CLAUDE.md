@@ -288,6 +288,91 @@ interface ProcedureResultaat {
 
 ---
 
+## Locatie resolver — packages/core/src/locatie/resolveLocatie.ts
+
+### Drie invoervormen — altijd parallel resolven:
+
+```typescript
+// Stap 1: detecteer alle locaties uit PDF tekst
+const locatieInvoeren = detecteerLocaties(pdfTekst, gemeente);
+
+// Stap 2: resolve parallel naar coördinaten
+const resolvedLocaties = await resolveAlleLocaties(locatieInvoeren);
+
+// Stap 3: gebruik coördinaten parallel voor bestemmingsplantoets
+const toetsen = await Promise.all(
+  resolvedLocaties
+    .filter(l => l.lat !== 0)
+    .map(l => haalBestemmingsplanViaPDOK(l.lat, l.lon))
+);
+```
+
+### Betrouwbaarheid per methode:
+
+| Invoer | Methode | Betrouwbaarheid |
+|--------|---------|-----------------|
+| Kadastraal nummer | PDOK perceel lookup | Hoog |
+| Adres | PDOK adres geocoding | Hoog |
+| Projectnaam | PDOK fuzzy search | Laag |
+| Coördinaten direct | Geen API nodig | Hoog |
+
+### Foutafhandeling:
+- Als PDOK niet bereikbaar: log waarschuwing, ga door zonder toets
+- Als perceel niet gevonden: probeer fallback zonder type filter
+- Als alles mislukt: vermeld in behandelrapport "locatie niet automatisch bepaald"
+- NOOIT de analyse stoppen vanwege een ontbrekende locatie
+
+### Rijksdriehoek vs WGS84:
+- PDOK WFS bestemmingsplannen gebruiken Rijksdriehoek (EPSG:28992)
+- PDOK Locatieserver geeft beide terug: centroide_ll (WGS84) en centroide_rd (RD)
+- Gebruik centroide_rd voor WFS queries aan PDOK Ruimtelijke Plannen
+- Gebruik centroide_ll voor weergave op kaart in frontend
+
+### Env variabelen (geen API key nodig):
+```
+PDOK_LOCATIESERVER=https://api.pdok.nl/bzk/locatieserver/search/v3_1
+PDOK_RUIMTELIJKEPLANNEN=https://service.pdok.nl/rws/ruimtelijkeplannen/wfs/v1_0
+```
+
+---
+
+## Gemeente onboarding
+
+Bij aanmelding leveren gemeenten aan:
+
+```
+- Gemeentenaam + code
+- Afdelingsnaam
+- Logo (.svg/.png 300dpi)          → opslaan in Azure Blob
+- Huisstijl template (.dotx)        optioneel
+- Zaaksysteem                       Djuma / Decos / Squit / anders
+- Briefgeneratie                    Templafy endpoint / Word template / geen
+- Streeftermijn vooroverleg
+- Aanvullende indieningsvereisten
+- Lokaal beleid
+```
+
+## Pilotgemeenten
+
+```
+SED (Stede Broec, Enkhuizen, Drechterland)  →  Djuma (ZGW API)
+Hoorn                                        →  Squit XO + Decos JOIN
+```
+
+## Brief export module
+
+Pluggable per gemeente:
+
+```
+templafy        → StUF-DCR API
+word_template   → .dotx invullen
+word_standaard  → eigen opmaak RO-flow
+
+Behandelrapport → PDF, geen RO-flow branding
+```
+
+---
+
 ## Juridische voorbehouden — altijd verplicht in AI output
 
 ```

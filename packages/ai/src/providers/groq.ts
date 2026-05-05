@@ -14,15 +14,18 @@ export class GroqProvider implements AIProvider {
   }
 
   async generateText(systemPrompt: string, userPrompt: string): Promise<string> {
-    const response = await this.client.chat.completions.create({
-      model: this.model,
-      messages: [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: userPrompt },
-      ],
-      temperature: 0.3,
-      max_tokens: 2048,
-    });
+    const response = await this.client.chat.completions.create(
+      {
+        model: this.model,
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userPrompt },
+        ],
+        temperature: 0.3,
+        max_tokens: 2048,
+      },
+      { signal: AbortSignal.timeout(30_000) }
+    );
 
     const content = response.choices[0]?.message?.content;
     if (!content) throw new Error('Groq gaf een lege respons');

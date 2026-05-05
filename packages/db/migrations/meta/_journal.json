@@ -15,6 +15,20 @@
       "when": 1777821740452,
       "tag": "0001_lazy_starjammers",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1746375600000,
+      "tag": "0002_add_percelen",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1746377000000,
+      "tag": "0003_add_aanvraag_metadata",
+      "breakpoints": true
     }
   ]
 }

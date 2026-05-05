@@ -18,8 +18,14 @@ export interface AiExtractie {
   locatieContext?: string;
 }
 
+export interface AanvraagMetadata {
+  aanvraagnummer?: string;
+  aanvraagdatum?: string;
+}
+
 export interface PdfExtractieResultaat extends AiExtractie {
   naw: NawExtractie;
+  metadata: AanvraagMetadata;
 }
 
 const ACTIVITEIT_TYPES = [
@@ -57,7 +63,7 @@ export function extractNawFromText(text: string): NawExtractie {
     String.raw`(?:naam\s+aanvrager|naam\s+indiener|naam\s+gemachtigde|` +
     String.raw`naam\s*[/]\s*organisatie|naam\s*[/]\s*bedrijf|` +
     String.raw`organisatienaam|organisatie|bedrijfsnaam|rechtspersoon|` +
-    String.raw`naam\s*:|indiener\s*:|aanvrager\s*:)\s*` +
+    String.raw`naam\s*:|indiener\s*:|aanvrager\s*:)\s*:?\s*` +
     String.raw`([A-Za-zÀ-ÿ0-9\s'.&,-]{2,80})` +
     LABEL_STOP.source,
     'i'
@@ -74,7 +80,7 @@ export function extractNawFromText(text: string): NawExtractie {
   const adresRe = new RegExp(
     String.raw`(?:straat\s+en\s+huisnummer|straatnaam\s+en\s+huisnummer|` +
     String.raw`locatieadres|bezoekadres|vestigingsadres|correspondentieadres|` +
-    String.raw`straat\s*:|straatnaam\s*:|adres\s*:|woonadres\s*:|postadres\s*:)\s*` +
+    String.raw`straat\s*:|straatnaam\s*:|adres\s*:|woonadres\s*:|postadres\s*:)\s*:?\s*` +
     String.raw`([^\n\r]{5,80})` +
     LABEL_STOP.source,
     'i'
@@ -132,6 +138,79 @@ export function buildExtractiePrompt(sanitizedText: string): { systemPrompt: str
     `}`;
 
   return { systemPrompt, userPrompt };
+}
+
+// Kadastrale aanduidingen extraheren uit PDF tekst.
+// Drie strategieën, toegepast op de "Specificatie locatie" sectie eerst.
+// Alle streepjestypen afgevangen: ASCII-koppelteken, en-dash, em-dash, minus.
+export function extractPercelenFromText(text: string): string[] {
+  const gevonden = new Set<string>();
+  const DASH = '[-–—−]';
+
+  // Zoek de "Specificatie locatie" sectie — percelen staan hier geconcentreerd
+  let sectie = text;
+  for (const label of ['specificatie locatie', 'kadastrale aanduiding', 'locatiegegevens', 'percelen:']) {
+    const idx = text.toLowerCase().indexOf(label);
+    if (idx >= 0) {
+      sectie = text.slice(idx, idx + 2000);
+      break;
+    }
+  }
+
+  function zoekIn(bron: string) {
+    // Strategie A: met streepjes "KGL02 - AE - 324" of "HOO00-M-656"
+    for (const m of bron.matchAll(
+      new RegExp(`([A-Z]{3,6}[0-9]{0,2})\\s*${DASH}\\s*([A-Z]{1,3})\\s*${DASH}\\s*(\\d{1,6})`, 'g')
+    )) {
+      gevonden.add(`${m[1]} - ${m[2]} - ${m[3]}`);
+    }
+
+    // Strategie B: gemeente-naam met koppelteken "Wester-Koggenland AC 476"
+    for (const m of bron.matchAll(/([A-Z][a-z]+(?:-[A-Z][a-z]+)+)\s+([A-Z]{1,2})\s+(\d{2,6})/g)) {
+      gevonden.add(`${m[1]} ${m[2]} ${m[3]}`);
+    }
+
+    // Strategie C: code + sectie + nummer ZONDER streepjes "KGL02 AE 324"
+    // Vereist minstens 1 cijfer in de code om false positives te voorkomen
+    for (const m of bron.matchAll(/\b([A-Z]{3,6}[0-9]{1,2})\s+([A-Z]{1,3})\s+(\d{2,6})\b/g)) {
+      gevonden.add(`${m[1]} - ${m[2]} - ${m[3]}`);
+    }
+  }
+
+  zoekIn(sectie);
+  // Fallback: zoek in het hele document als de sectie niets opleverde
+  if (gevonden.size === 0 && sectie !== text) zoekIn(text);
+
+  return [...gevonden];
+}
+
+// Regex-based metadata extraction — aanvraagnummer en datum uit PDF tekst
+export function extractMetadataFromText(text: string): AanvraagMetadata {
+  const result: AanvraagMetadata = {};
+
+  // Aanvraagnummer / Zaaknummer / Kenmerk
+  const nummerMatch = text.match(
+    /(?:aanvraagnummer|zaaknummer|ons\s+kenmerk|kenmerk|referentienummer)\s*:?\s*([A-Z0-9][\w/.-]{1,30})/i
+  );
+  if (nummerMatch) result.aanvraagnummer = nummerMatch[1].trim();
+
+  // Aanvraagdatum: labelled Dutch month or numeric date
+  const datumNlLabeled = text.match(
+    /(?:aanvraagdatum|datum\s+aanvraag|ingediend\s+op|datum\s+indiening)\s*:?\s*(\d{1,2}\s+(?:januari|februari|maart|april|mei|juni|juli|augustus|september|oktober|november|december)\s+\d{4})/i
+  );
+  const datumCijfersLabeled = text.match(
+    /(?:aanvraagdatum|datum\s+aanvraag|ingediend\s+op|datum\s+indiening)\s*:?\s*(\d{1,2}[-/]\d{1,2}[-/]\d{4})/i
+  );
+  // Fallback: any Dutch-month date in the document (e.g. "8 december 2021" in footer)
+  const datumFallback = text.match(
+    /\b(\d{1,2}\s+(?:januari|februari|maart|april|mei|juni|juli|augustus|september|oktober|november|december)\s+\d{4})\b/i
+  );
+
+  if (datumNlLabeled) result.aanvraagdatum = datumNlLabeled[1].trim();
+  else if (datumCijfersLabeled) result.aanvraagdatum = datumCijfersLabeled[1].trim();
+  else if (datumFallback) result.aanvraagdatum = datumFallback[1].trim();
+
+  return result;
 }
 
 export function parseExtractieResponse(response: string): AiExtractie {

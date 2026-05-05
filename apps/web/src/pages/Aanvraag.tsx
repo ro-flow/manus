@@ -6,12 +6,27 @@ const ACTIVITEIT_TYPES = [
   'milieu', 'afwijken bestemmingsplan', 'anders',
 ];
 
+interface PerceelInput {
+  id: string;
+  kadastraleAanduiding: string;
+  activiteiten: string[];
+  ingediendeDocs: { type: string; bestandsnaam: string }[];
+  bouwjaar: number | null;
+  postcode?: string;
+  huisnummer?: string;
+  gebruiksdoel?: string[];
+  oppervlakte?: number | null;
+}
+
 interface ExtractieResultaat {
   gemeente?: string;
   activiteitType?: string;
   activiteitOmschrijving?: string;
   locatieContext?: string;
+  aanvraagnummer?: string;
+  aanvraagdatum?: string;
   methode?: 'pdf_ai' | 'dso_xml';
+  percelen?: PerceelInput[];
   naw: {
     naam?: string;
     email?: string;
@@ -38,9 +53,13 @@ export function Aanvraag() {
   const [activiteitOmschrijving, setActiviteitOmschrijving] = useState('');
   const [naam, setNaam] = useState('');
   const [email, setEmail] = useState('');
+  const [telefoon, setTelefoon] = useState('');
   const [adres, setAdres] = useState('');
   const [postcode, setPostcode] = useState('');
   const [woonplaats, setWoonplaats] = useState('');
+  const [aanvraagnummer, setAanvraagnummer] = useState('');
+  const [aanvraagdatum, setAanvraagdatum] = useState('');
+  const [percelen, setPercelen] = useState<PerceelInput[] | undefined>(undefined);
 
   const [fout, setFout] = useState('');
 
@@ -74,8 +93,12 @@ export function Aanvraag() {
       setActiviteitType(genormaliseerd ?? 'anders');
     }
     if (data.activiteitOmschrijving) setActiviteitOmschrijving(data.activiteitOmschrijving);
+    if (data.percelen?.length) setPercelen(data.percelen);
+    if (data.aanvraagnummer) setAanvraagnummer(data.aanvraagnummer);
+    if (data.aanvraagdatum) setAanvraagdatum(data.aanvraagdatum);
     if (data.naw.naam) setNaam(data.naw.naam);
     if (data.naw.email) setEmail(data.naw.email);
+    if (data.naw.telefoon) setTelefoon(data.naw.telefoon);
     if (data.naw.adres) setAdres(data.naw.adres);
     if (data.naw.postcode) setPostcode(data.naw.postcode);
     if (data.naw.woonplaats) setWoonplaats(data.naw.woonplaats);
@@ -91,8 +114,9 @@ export function Aanvraag() {
       form.append('bestand', bestand);
       const res = await fetch('/api/aanvragen/extraheer', { method: 'POST', body: form });
       if (!res.ok) {
-        const body = await res.json().catch(() => ({})) as { error?: string };
-        throw new Error(body.error ?? 'Analyse mislukt');
+        const body = await res.json().catch(() => ({})) as { error?: string; message?: string };
+        if (res.status === 503) throw new Error(body.message ?? 'AI-service tijdelijk niet beschikbaar. Probeer het over 30 minuten opnieuw.');
+        throw new Error(body.message ?? body.error ?? 'Analyse mislukt');
       }
       const data = await res.json() as ExtractieResultaat;
       vulVeldenIn(data);
@@ -105,7 +129,7 @@ export function Aanvraag() {
 
   async function handleBevestig(e: React.FormEvent) {
     e.preventDefault();
-    if (!gemeente.trim()) { setFout('Gemeente is verplicht.'); return; }
+    if (!activiteitType.trim()) { setFout('Type activiteit is verplicht.'); return; }
     setFout('');
     setStap('indienen');
 
@@ -117,9 +141,13 @@ export function Aanvraag() {
           gemeente,
           activiteitType,
           activiteitOmschrijving,
+          aanvraagnummer: aanvraagnummer || undefined,
+          aanvraagdatum: aanvraagdatum || undefined,
+          percelen: percelen ?? undefined,
           aanvrager: naam ? {
             naam,
             email: email || undefined,
+            telefoon: telefoon || undefined,
             adres: adres || undefined,
             postcode: postcode || undefined,
             woonplaats: woonplaats || undefined,
@@ -250,7 +278,7 @@ export function Aanvraag() {
           <svg className="w-3.5 h-3.5 text-green-light flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
           </svg>
-          NAW-gegevens worden door de backend uit de PDF gehaald via patroonherkenning — nooit via AI.
+          Persoonsgegevens worden gescheiden opgeslagen en nooit naar AI gestuurd — alleen gebruikt in de brief.
         </div>
       </div>
     );
@@ -293,19 +321,6 @@ export function Aanvraag() {
           <h2 className="text-sm font-semibold text-text-muted uppercase tracking-wide">Aanvraaggegevens</h2>
 
           <div>
-            <label className="block text-sm font-medium mb-1.5">
-              Gemeente <span className="text-red-400">*</span>
-            </label>
-            <input
-              type="text"
-              value={gemeente}
-              onChange={(e) => setGemeente(e.target.value)}
-              placeholder="bijv. Amsterdam"
-              className="w-full bg-bg border border-bg-light rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-orange transition-colors"
-            />
-          </div>
-
-          <div>
             <label className="block text-sm font-medium mb-1.5">Type activiteit</label>
             <select
               value={activiteitType}
@@ -329,48 +344,144 @@ export function Aanvraag() {
           </div>
         </div>
 
-        {/* NAW */}
+        {/* Referentie */}
         <div className="card space-y-4">
-          <div className="flex items-center gap-2">
-            <svg className="w-4 h-4 text-green-light" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-            </svg>
-            <h2 className="text-sm font-semibold">
-              Aanvrager <span className="text-text-muted font-normal">(NAW — gescheiden opgeslagen, nooit naar AI)</span>
-            </h2>
+          <h2 className="text-sm font-semibold text-text-muted uppercase tracking-wide">Referentie</h2>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium mb-1.5">Aanvraagnummer</label>
+              <input
+                type="text"
+                value={aanvraagnummer}
+                onChange={(e) => setAanvraagnummer(e.target.value)}
+                placeholder="bijv. Z2024-0123"
+                className="w-full bg-bg border border-bg-light rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-orange transition-colors"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1.5">Aanvraagdatum</label>
+              <input
+                type="text"
+                value={aanvraagdatum}
+                onChange={(e) => setAanvraagdatum(e.target.value)}
+                placeholder="bijv. 15 januari 2024"
+                className="w-full bg-bg border border-bg-light rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-orange transition-colors"
+              />
+            </div>
           </div>
+        </div>
+
+        {/* Percelen */}
+        {percelen && percelen.length > 0 && (
+          <div className="card space-y-3">
+            <h2 className="text-sm font-semibold text-text-muted uppercase tracking-wide">
+              Percelen
+              <span className="ml-2 text-xs font-normal normal-case text-text-muted">({percelen.length} gevonden)</span>
+            </h2>
+            <div className="space-y-2">
+              {percelen.map((p) => (
+                <div
+                  key={p.id}
+                  className="flex items-center justify-between bg-bg rounded-lg px-4 py-2.5 border border-bg-light"
+                >
+                  <div className="flex items-center gap-3">
+                    <svg className="w-4 h-4 text-orange flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+                    </svg>
+                    <span className="text-sm font-mono">{p.kadastraleAanduiding}</span>
+                  </div>
+                  {p.activiteiten.length > 0 && (
+                    <span className="text-xs text-text-muted capitalize">
+                      {p.activiteiten.join(', ')}
+                    </span>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* NAW-gegevens */}
+        <div className="card space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-sm font-semibold text-text-muted uppercase tracking-wide">NAW-gegevens aanvrager</h2>
+            <span className="flex items-center gap-1 text-xs text-green-light">
+              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+              </svg>
+              Gescheiden opgeslagen
+            </span>
+          </div>
+          <p className="text-xs text-text-muted -mt-2">
+            NAW-gegevens worden nooit naar AI gestuurd en opgeslagen in een beveiligde tabel.
+          </p>
 
           <div>
-            <label className="block text-xs text-text-muted mb-1">Naam</label>
-            <input type="text" value={naam} onChange={(e) => setNaam(e.target.value)}
-              placeholder="Voor- en achternaam"
-              className="w-full bg-bg border border-bg-light rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-orange transition-colors" />
+            <label className="block text-sm font-medium mb-1.5">Naam aanvrager</label>
+            <input
+              type="text"
+              value={naam}
+              onChange={(e) => setNaam(e.target.value)}
+              placeholder="Volledige naam of bedrijfsnaam"
+              className="w-full bg-bg border border-bg-light rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-orange transition-colors"
+            />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs text-text-muted mb-1">E-mail</label>
-              <input type="email" value={email} onChange={(e) => setEmail(e.target.value)}
+              <label className="block text-sm font-medium mb-1.5">E-mailadres</label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 placeholder="naam@voorbeeld.nl"
-                className="w-full bg-bg border border-bg-light rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-orange transition-colors" />
+                className="w-full bg-bg border border-bg-light rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-orange transition-colors"
+              />
             </div>
             <div>
-              <label className="block text-xs text-text-muted mb-1">Adres</label>
-              <input type="text" value={adres} onChange={(e) => setAdres(e.target.value)}
-                placeholder="Straat 1"
-                className="w-full bg-bg border border-bg-light rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-orange transition-colors" />
+              <label className="block text-sm font-medium mb-1.5">Telefoonnummer</label>
+              <input
+                type="tel"
+                value={telefoon}
+                onChange={(e) => setTelefoon(e.target.value)}
+                placeholder="06-12345678"
+                className="w-full bg-bg border border-bg-light rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-orange transition-colors"
+              />
             </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-1.5">Adres</label>
+            <input
+              type="text"
+              value={adres}
+              onChange={(e) => setAdres(e.target.value)}
+              placeholder="Straatnaam 1"
+              className="w-full bg-bg border border-bg-light rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-orange transition-colors"
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs text-text-muted mb-1">Postcode</label>
-              <input type="text" value={postcode} onChange={(e) => setPostcode(e.target.value)}
+              <label className="block text-sm font-medium mb-1.5">Postcode</label>
+              <input
+                type="text"
+                value={postcode}
+                onChange={(e) => setPostcode(e.target.value)}
                 placeholder="1234 AB"
-                className="w-full bg-bg border border-bg-light rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-orange transition-colors" />
+                className="w-full bg-bg border border-bg-light rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-orange transition-colors"
+              />
             </div>
             <div>
-              <label className="block text-xs text-text-muted mb-1">Woonplaats</label>
-              <input type="text" value={woonplaats} onChange={(e) => setWoonplaats(e.target.value)}
+              <label className="block text-sm font-medium mb-1.5">Woonplaats</label>
+              <input
+                type="text"
+                value={woonplaats}
+                onChange={(e) => setWoonplaats(e.target.value)}
                 placeholder="Amsterdam"
-                className="w-full bg-bg border border-bg-light rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-orange transition-colors" />
+                className="w-full bg-bg border border-bg-light rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-orange transition-colors"
+              />
             </div>
           </div>
         </div>

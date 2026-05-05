@@ -12,8 +12,10 @@ export {
   sanitizeTextForAI,
   buildExtractiePrompt,
   parseExtractieResponse,
+  extractMetadataFromText,
+  extractPercelenFromText,
 } from './extractie.js';
-export type { NawExtractie, AiExtractie, PdfExtractieResultaat } from './extractie.js';
+export type { NawExtractie, AiExtractie, AanvraagMetadata, PdfExtractieResultaat } from './extractie.js';
 
 export { parseDsoXml } from './dsoParser.js';
 export type { DsoExtractieResultaat } from './dsoParser.js';
@@ -32,3 +34,14 @@ export type {
 
 export { parseerDSOXml, labeleerDocument, verwerkDocumenten } from './completeness/dsoParser.js';
 export type { DSOParseResultaat } from './completeness/dsoParser.js';
+
+export { detecteerLocaties, resolveLocatie, resolveAlleLocaties } from './locatie/resolveLocatie.js';
+export type {
+  LocatieInvoer,
+  LocatieInvoerType,
+  KadastraalInvoer,
+  AdresInvoer,
+  ProjectnaamInvoer,
+  CoordinatenInvoer,
+  ResolvedLocatie,
+} from './locatie/resolveLocatie.js';

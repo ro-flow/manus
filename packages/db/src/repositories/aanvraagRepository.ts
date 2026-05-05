@@ -3,7 +3,6 @@ import { getDb } from '../client.js';
 import {
   aanvragen,
   aanvragerPii,
-  type NewAanvraag,
   type Aanvraag,
   type AanvragerPii,
 } from '../schema.js';
@@ -13,6 +12,9 @@ export interface CreateAanvraagInput {
   gebiedstype?: string;
   activiteitType?: string;
   activiteitOmschrijving?: string;
+  aanvraagnummer?: string;
+  aanvraagdatum?: string;
+  percelen?: unknown;
 }
 
 export interface SavePiiInput {

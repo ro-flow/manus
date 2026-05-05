@@ -1,6 +1,33 @@
-node_modules
-dist
+# Afhankelijkheden
+node_modules/
+.pnp
+.pnp.js
+
+# Build output
+dist/
+build/
+*.tsbuildinfo
+
+# Omgevingsvariabelen — NOOIT committen
 .env
+.env.local
+.env.*.local
 apps/api/.env
-*.env.local
-.db-password.tmp
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/settings.json
+.idea/
+
+# Azure Functions (later)
+.python_packages/
+bin/
+obj/
