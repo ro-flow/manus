@@ -390,11 +390,17 @@ Behandelrapport → PDF, geen RO-flow branding
 ✅ Frontend                  landingspagina, aanvraagpagina (NAW-kaart, percelen,
                              referentie aanvraagnummer/datum), resultaatpagina
                              (formeel/concept toggle, termijnen, variant-badge A-E)
-✅ Behandelrapport pop-up    intern modal, niet voor aanvrager, per perceel
-⬜ Download functie (Word/PDF)   nog te bouwen
+✅ Behandelrapport pop-up    intern modal, conclusiestrip, BOPA-banner,
+                             uitklapbare percelen, PDF-download (pdfkit)
+                             GET /api/aanvragen/:id/behandelrapport/pdf
+✅ Brief Word-export         .docx download via docx package
+                             GET /api/aanvragen/:id/brief/download
+                             bouwBrief() helper gedeeld tussen JSON + download
 ⬜ Auth systeem              fase 2
-⬜ Zaaksysteem koppeling     fase 2
+⬜ Zaaksysteem koppeling     fase 2 (SED → Djuma ZGW API, Hoorn → Squit/Decos)
 ⬜ Templafy koppeling        fase 3
+⬜ Percelenkaart             lat/lon beschikbaar, kaartje nog te bouwen
+⬜ determineProcedure        beslisboom uitbreiden (art. 10.24 Omgevingsbesluit)
 ```
 
 ---
