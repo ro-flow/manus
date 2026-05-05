@@ -45,3 +45,14 @@ export type {
   CoordinatenInvoer,
   ResolvedLocatie,
 } from './locatie/resolveLocatie.js';
+
+export {
+  toetsBestemmingsplan,
+  buildBestemmingsplanToetsPrompt,
+  parseBestemmingsplanToetsResponse,
+} from './locatie/bestemmingsplanToets.js';
+export type {
+  BestemmingsplanToetsResultaat,
+  BestemmingsplanInfo,
+  IndicatieveToetsResultaat,
+} from './locatie/bestemmingsplanToets.js';
